@@ -1,5 +1,3 @@
--- This file was generated at discord.gg/syncrypt
-
 local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
 local TeleportToPlaceInstance = TeleportService.TeleportToPlaceInstance
