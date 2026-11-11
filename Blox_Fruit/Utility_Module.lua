@@ -1,3 +1,4 @@
+--//3tnhub
 repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
 
 local toidangkiemtraloadingscreen = tick()
