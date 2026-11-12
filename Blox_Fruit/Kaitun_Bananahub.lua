@@ -1,4 +1,4 @@
---//dsc thienhuynhngoc
+-- +dsc thienhuynhngoc+
 getgenv().Key = "NO_KEY_NEEDED"
 getgenv().__BANANA_SCRIPT_ROUTE = "kaigod"
 Config = {
@@ -53,16 +53,16 @@ local genv = getgenv()
 if true then
   if true then
 
-    local v = nil
-    local flag = false
-    local connection = nil
-    local tbl2 = {}
-    local n = 0
-    local fn = nil
-    local v2 = nil
-    local v3 = nil
+    local loaderGuiInstance = nil
+    local isLoaderClosed = false
+    local viewportSizeConnection = nil
+    local activeLogRows = {}
+    local logRowIndex = 0
+    local destroyLoaderUI = nil
+    local updateLoaderProgress = nil
+    local addLoaderLog = nil
 
-    local function fn2()
+    local function createWhitelistLoaderGUI()
       local ok, result = pcall(function()
         local Players = game:GetService("Players")
         local TweenService = game:GetService("TweenService")
@@ -88,7 +88,7 @@ if true then
             chuoiHubWhitelistLoader:Destroy()
           end
 
-          local function fn3(arg, arg2, parent)
+          local function createInstance(arg, arg2, parent)
             local instance = Instance.new(arg)
 
             for k, v4 in pairs(arg2) do
@@ -99,35 +99,30 @@ if true then
             return instance
           end
 
-          local ScreenGui = fn3("ScreenGui", {Name = "ChuoiHubWhitelistLoader", IgnoreGuiInset = true, ResetOnSpawn = false, DisplayOrder = 1000000, ZIndexBehavior = Enum.ZIndexBehavior.Sibling}, playerGui)
-          local Frame = fn3("Frame", {Name = "Backdrop", Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = Color3.fromRGB(4, 6, 13), BackgroundTransparency = 0.2, BorderSizePixel = 0, Active = true}, ScreenGui)
-          local tbl = {}
-          local tbl3 = {}
-          local v4 = ColorSequenceKeypoint.new(0, Color3.fromRGB(6, 9, 20))
-          local v5 = ColorSequenceKeypoint.new(0.55, Color3.fromRGB(13, 10, 23))
-          local v6 = table.pack(ColorSequenceKeypoint.new(1, Color3.fromRGB(5, 14, 21)))
-          tbl3[1] = v4
-          tbl3[2] = v5
-          tbl3[3] = table.unpack(v6, 1, v6.n)
-          tbl.Color = ColorSequence.new(tbl3)
-          tbl.Rotation = 125
-          fn3("UIGradient", tbl, Frame)
-          local Frame2 = fn3("Frame", {Name = "LoaderCard", AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(0.5, 0, 0.5, 18), Size = UDim2.new(0, 530, 0, 350), BackgroundColor3 = Color3.fromRGB(13, 16, 27), BackgroundTransparency = 0.04, BorderSizePixel = 0, ClipsDescendants = true}, Frame)
-          fn3("UICorner", {CornerRadius = UDim.new(0, 22)}, Frame2)
-          fn3("UIStroke", {Color = Color3.fromRGB(255, 207, 113), Transparency = 0.72, Thickness = 1}, Frame2)
-          local tbl4 = {}
-          local tbl5 = {}
-          local v7 = ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 23, 37))
-          local v8 = ColorSequenceKeypoint.new(0.58, Color3.fromRGB(12, 15, 26))
-          tbl5[1] = v7
-          tbl5[2] = v8
-          tbl5[3] = ColorSequenceKeypoint.new(1, Color3.fromRGB(17, 20, 32))
-          tbl4.Color = ColorSequence.new(tbl5)
-          tbl4.Rotation = 135
-          fn3("UIGradient", tbl4, Frame2)
-          local UIScale = fn3("UIScale", {Scale = 0.9}, Frame2)
+          local ScreenGui = createInstance("ScreenGui", {Name = "ChuoiHubWhitelistLoader", IgnoreGuiInset = true, ResetOnSpawn = false, DisplayOrder = 1000000, ZIndexBehavior = Enum.ZIndexBehavior.Sibling}, playerGui)
+          local Frame = createInstance("Frame", {Name = "Backdrop", Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = Color3.fromRGB(4, 6, 13), BackgroundTransparency = 0.2, BorderSizePixel = 0, Active = true}, ScreenGui)
+          createInstance("UIGradient", {
+            Color = ColorSequence.new({
+              ColorSequenceKeypoint.new(0, Color3.fromRGB(6, 9, 20)),
+              ColorSequenceKeypoint.new(0.55, Color3.fromRGB(13, 10, 23)),
+              ColorSequenceKeypoint.new(1, Color3.fromRGB(5, 14, 21))
+            }),
+            Rotation = 125
+          }, Frame)
+          local Frame2 = createInstance("Frame", {Name = "LoaderCard", AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(0.5, 0, 0.5, 18), Size = UDim2.new(0, 530, 0, 350), BackgroundColor3 = Color3.fromRGB(13, 16, 27), BackgroundTransparency = 0.04, BorderSizePixel = 0, ClipsDescendants = true}, Frame)
+          createInstance("UICorner", {CornerRadius = UDim.new(0, 22)}, Frame2)
+          createInstance("UIStroke", {Color = Color3.fromRGB(255, 207, 113), Transparency = 0.72, Thickness = 1}, Frame2)
+          createInstance("UIGradient", {
+            Color = ColorSequence.new({
+              ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 23, 37)),
+              ColorSequenceKeypoint.new(0.58, Color3.fromRGB(12, 15, 26)),
+              ColorSequenceKeypoint.new(1, Color3.fromRGB(17, 20, 32))
+            }),
+            Rotation = 135
+          }, Frame2)
+          local UIScale = createInstance("UIScale", {Scale = 0.9}, Frame2)
 
-          local function fn4()
+          local function updateViewportScale()
             local currentCamera = workspace.CurrentCamera
             local viewportSize
 
@@ -142,55 +137,53 @@ if true then
             UIScale.Scale = math.clamp(math.min(viewportSize.X / 610, viewportSize.Y / 430), 0.58, 1)
           end
 
-          fn4()
+          updateViewportScale()
           local currentCamera = workspace.CurrentCamera
 
           if currentCamera then
-            connection = currentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(fn4)
+            viewportSizeConnection = currentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(updateViewportScale)
           end
 
-          local Frame3 = fn3("Frame", {Name = "BrandMark", Position = UDim2.new(0, 27, 0, 24), Size = UDim2.new(0, 42, 0, 42), BackgroundColor3 = Color3.fromRGB(255, 188, 67), BorderSizePixel = 0}, Frame2)
-          fn3("UICorner", {CornerRadius = UDim.new(0, 13)}, Frame3)
-          fn3("UIGradient", {Color = ColorSequence.new(Color3.fromRGB(255, 220, 123), Color3.fromRGB(255, 145, 46)), Rotation = 135}, Frame3)
-          fn3("TextLabel", {Name = "Letter", Size = UDim2.new(1, 0, 1, 0), BackgroundTransparency = 1, Text = "C", TextColor3 = Color3.fromRGB(29, 20, 12), Font = Enum.Font.GothamBold, TextSize = 21}, Frame3)
-          fn3("TextLabel", {Name = "Title", Position = UDim2.new(0, 83, 0, 23), Size = UDim2.new(0, 275, 0, 25), BackgroundTransparency = 1, Text = "Chuoi Hub", TextColor3 = Color3.fromRGB(247, 248, 252), Font = Enum.Font.GothamBold, TextSize = 20, TextXAlignment = Enum.TextXAlignment.Left}, Frame2)
-          fn3("TextLabel", {Name = "Subtitle", Position = UDim2.new(0, 84, 0, 48), Size = UDim2.new(0, 295, 0, 18), BackgroundTransparency = 1, Text = "FAST WHITELIST  /  V5.0", TextColor3 = Color3.fromRGB(137, 143, 163), Font = Enum.Font.GothamMedium, TextSize = 10, TextXAlignment = Enum.TextXAlignment.Left}, Frame2)
-          local Frame4 = fn3("Frame", {Name = "SecureBadge", Position = UDim2.new(1, -133, 0, 31), Size = UDim2.new(0, 84, 0, 25), BackgroundColor3 = Color3.fromRGB(101, 224, 168), BackgroundTransparency = 0.9, BorderSizePixel = 0}, Frame2)
-          fn3("UICorner", {CornerRadius = UDim.new(1, 0)}, Frame4)
-          fn3("UIStroke", {Color = Color3.fromRGB(101, 224, 168), Transparency = 0.6}, Frame4)
-          fn3("TextLabel", {Name = "BadgeText", Size = UDim2.new(1, 0, 1, 0), BackgroundTransparency = 1, Text = "PROTECTED", TextColor3 = Color3.fromRGB(120, 231, 181), Font = Enum.Font.GothamBold, TextSize = 9}, Frame4)
-          local TextButton = fn3("TextButton", {Name = "CloseButton", Position = UDim2.new(1, -40, 0, 28), Size = UDim2.new(0, 27, 0, 27), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.94, BorderSizePixel = 0, AutoButtonColor = false, Text = "×", TextColor3 = Color3.fromRGB(171, 176, 194), Font = Enum.Font.GothamMedium, TextSize = 19}, Frame2)
-          fn3("UICorner", {CornerRadius = UDim.new(1, 0)}, TextButton)
-          fn3("Frame", {Name = "Divider", Position = UDim2.new(0, 27, 0, 82), Size = UDim2.new(1, -54, 0, 1), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.91, BorderSizePixel = 0}, Frame2)
-          local TextLabel = fn3("TextLabel", {Name = "CurrentStatus", Position = UDim2.new(0, 27, 0, 98), Size = UDim2.new(1, -120, 0, 25), BackgroundTransparency = 1, Text = "Connecting to whitelist server...", TextColor3 = Color3.fromRGB(237, 239, 247), Font = Enum.Font.GothamSemibold, TextSize = 14, TextXAlignment = Enum.TextXAlignment.Left, TextTruncate = Enum.TextTruncate.AtEnd}, Frame2)
-          local TextLabel2 = fn3("TextLabel", {Name = "ProgressPercent", Position = UDim2.new(1, -85, 0, 98), Size = UDim2.new(0, 58, 0, 25), BackgroundTransparency = 1, Text = "0%", TextColor3 = Color3.fromRGB(255, 199, 95), Font = Enum.Font.GothamBold, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Right}, Frame2)
-          local Frame5 = fn3("Frame", {Name = "ProgressTrack", Position = UDim2.new(0, 27, 0, 131), Size = UDim2.new(1, -54, 0, 7), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.91, BorderSizePixel = 0, ClipsDescendants = true}, Frame2)
-          fn3("UICorner", {CornerRadius = UDim.new(1, 0)}, Frame5)
-          local Frame6 = fn3("Frame", {Name = "ProgressFill", Size = UDim2.new(0, 0, 1, 0), BackgroundColor3 = Color3.fromRGB(255, 185, 64), BorderSizePixel = 0}, Frame5)
-          fn3("UICorner", {CornerRadius = UDim.new(1, 0)}, Frame6)
-          local tbl6 = {}
-          local tbl7 = {}
-          local v9 = ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 147, 47))
-          local v10 = ColorSequenceKeypoint.new(0.55, Color3.fromRGB(255, 226, 128))
-          tbl7[1] = v9
-          tbl7[2] = v10
-          tbl7[3] = ColorSequenceKeypoint.new(1, Color3.fromRGB(143, 115, 255))
-          tbl6.Color = ColorSequence.new(tbl7)
-          fn3("UIGradient", tbl6, Frame6)
-          local Frame7 = fn3("Frame", {Name = "ActivityCard", Position = UDim2.new(0, 27, 0, 157), Size = UDim2.new(1, -54, 0, 145), BackgroundColor3 = Color3.fromRGB(5, 8, 16), BackgroundTransparency = 0.28, BorderSizePixel = 0, ClipsDescendants = true}, Frame2)
-          fn3("UICorner", {CornerRadius = UDim.new(0, 14)}, Frame7)
-          fn3("UIStroke", {Color = Color3.new(1, 1, 1), Transparency = 0.92}, Frame7)
-          fn3("TextLabel", {Name = "ActivityTitle", Position = UDim2.new(0, 16, 0, 10), Size = UDim2.new(1, -32, 0, 17), BackgroundTransparency = 1, Text = "LIVE ACTIVITY", TextColor3 = Color3.fromRGB(116, 123, 145), Font = Enum.Font.GothamBold, TextSize = 9, TextXAlignment = Enum.TextXAlignment.Left}, Frame7)
-          local Frame8 = fn3("Frame", {Name = "LogRows", Position = UDim2.new(0, 16, 0, 33), Size = UDim2.new(1, -32, 1, -41), BackgroundTransparency = 1}, Frame7)
-          fn3("UIListLayout", {Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder, VerticalAlignment = Enum.VerticalAlignment.Bottom}, Frame8)
-          local Frame9 = fn3("Frame", {Name = "ConnectionIndicator", Position = UDim2.new(0, 28, 0, 324), Size = UDim2.new(0, 7, 0, 7), BackgroundColor3 = Color3.fromRGB(101, 224, 168), BorderSizePixel = 0}, Frame2)
-          fn3("UICorner", {CornerRadius = UDim.new(1, 0)}, Frame9)
-          local TextLabel3 = fn3("TextLabel", {Name = "ConnectionText", Position = UDim2.new(0, 42, 0, 317), Size = UDim2.new(1, -70, 0, 21), BackgroundTransparency = 1, Text = "Encrypted connection active", TextColor3 = Color3.fromRGB(116, 123, 145), Font = Enum.Font.GothamMedium, TextSize = 10, TextXAlignment = Enum.TextXAlignment.Left}, Frame2)
+          local Frame3 = createInstance("Frame", {Name = "BrandMark", Position = UDim2.new(0, 27, 0, 24), Size = UDim2.new(0, 42, 0, 42), BackgroundColor3 = Color3.fromRGB(255, 188, 67), BorderSizePixel = 0}, Frame2)
+          createInstance("UICorner", {CornerRadius = UDim.new(0, 13)}, Frame3)
+          createInstance("UIGradient", {Color = ColorSequence.new(Color3.fromRGB(255, 220, 123), Color3.fromRGB(255, 145, 46)), Rotation = 135}, Frame3)
+          createInstance("TextLabel", {Name = "Letter", Size = UDim2.new(1, 0, 1, 0), BackgroundTransparency = 1, Text = "C", TextColor3 = Color3.fromRGB(29, 20, 12), Font = Enum.Font.GothamBold, TextSize = 21}, Frame3)
+          createInstance("TextLabel", {Name = "Title", Position = UDim2.new(0, 83, 0, 23), Size = UDim2.new(0, 275, 0, 25), BackgroundTransparency = 1, Text = "Chuoi Hub", TextColor3 = Color3.fromRGB(247, 248, 252), Font = Enum.Font.GothamBold, TextSize = 20, TextXAlignment = Enum.TextXAlignment.Left}, Frame2)
+          createInstance("TextLabel", {Name = "Subtitle", Position = UDim2.new(0, 84, 0, 48), Size = UDim2.new(0, 295, 0, 18), BackgroundTransparency = 1, Text = "FAST WHITELIST  /  V5.0", TextColor3 = Color3.fromRGB(137, 143, 163), Font = Enum.Font.GothamMedium, TextSize = 10, TextXAlignment = Enum.TextXAlignment.Left}, Frame2)
+          local Frame4 = createInstance("Frame", {Name = "SecureBadge", Position = UDim2.new(1, -133, 0, 31), Size = UDim2.new(0, 84, 0, 25), BackgroundColor3 = Color3.fromRGB(101, 224, 168), BackgroundTransparency = 0.9, BorderSizePixel = 0}, Frame2)
+          createInstance("UICorner", {CornerRadius = UDim.new(1, 0)}, Frame4)
+          createInstance("UIStroke", {Color = Color3.fromRGB(101, 224, 168), Transparency = 0.6}, Frame4)
+          createInstance("TextLabel", {Name = "BadgeText", Size = UDim2.new(1, 0, 1, 0), BackgroundTransparency = 1, Text = "PROTECTED", TextColor3 = Color3.fromRGB(120, 231, 181), Font = Enum.Font.GothamBold, TextSize = 9}, Frame4)
+          local TextButton = createInstance("TextButton", {Name = "CloseButton", Position = UDim2.new(1, -40, 0, 28), Size = UDim2.new(0, 27, 0, 27), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.94, BorderSizePixel = 0, AutoButtonColor = false, Text = "×", TextColor3 = Color3.fromRGB(171, 176, 194), Font = Enum.Font.GothamMedium, TextSize = 19}, Frame2)
+          createInstance("UICorner", {CornerRadius = UDim.new(1, 0)}, TextButton)
+          createInstance("Frame", {Name = "Divider", Position = UDim2.new(0, 27, 0, 82), Size = UDim2.new(1, -54, 0, 1), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.91, BorderSizePixel = 0}, Frame2)
+          local TextLabel = createInstance("TextLabel", {Name = "CurrentStatus", Position = UDim2.new(0, 27, 0, 98), Size = UDim2.new(1, -120, 0, 25), BackgroundTransparency = 1, Text = "Connecting to whitelist server...", TextColor3 = Color3.fromRGB(237, 239, 247), Font = Enum.Font.GothamSemibold, TextSize = 14, TextXAlignment = Enum.TextXAlignment.Left, TextTruncate = Enum.TextTruncate.AtEnd}, Frame2)
+          local TextLabel2 = createInstance("TextLabel", {Name = "ProgressPercent", Position = UDim2.new(1, -85, 0, 98), Size = UDim2.new(0, 58, 0, 25), BackgroundTransparency = 1, Text = "0%", TextColor3 = Color3.fromRGB(255, 199, 95), Font = Enum.Font.GothamBold, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Right}, Frame2)
+          local Frame5 = createInstance("Frame", {Name = "ProgressTrack", Position = UDim2.new(0, 27, 0, 131), Size = UDim2.new(1, -54, 0, 7), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.91, BorderSizePixel = 0, ClipsDescendants = true}, Frame2)
+          createInstance("UICorner", {CornerRadius = UDim.new(1, 0)}, Frame5)
+          local Frame6 = createInstance("Frame", {Name = "ProgressFill", Size = UDim2.new(0, 0, 1, 0), BackgroundColor3 = Color3.fromRGB(255, 185, 64), BorderSizePixel = 0}, Frame5)
+          createInstance("UICorner", {CornerRadius = UDim.new(1, 0)}, Frame6)
+          createInstance("UIGradient", {
+            Color = ColorSequence.new({
+              ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 147, 47)),
+              ColorSequenceKeypoint.new(0.55, Color3.fromRGB(255, 226, 128)),
+              ColorSequenceKeypoint.new(1, Color3.fromRGB(143, 115, 255))
+            })
+          }, Frame6)
+          local Frame7 = createInstance("Frame", {Name = "ActivityCard", Position = UDim2.new(0, 27, 0, 157), Size = UDim2.new(1, -54, 0, 145), BackgroundColor3 = Color3.fromRGB(5, 8, 16), BackgroundTransparency = 0.28, BorderSizePixel = 0, ClipsDescendants = true}, Frame2)
+          createInstance("UICorner", {CornerRadius = UDim.new(0, 14)}, Frame7)
+          createInstance("UIStroke", {Color = Color3.new(1, 1, 1), Transparency = 0.92}, Frame7)
+          createInstance("TextLabel", {Name = "ActivityTitle", Position = UDim2.new(0, 16, 0, 10), Size = UDim2.new(1, -32, 0, 17), BackgroundTransparency = 1, Text = "LIVE ACTIVITY", TextColor3 = Color3.fromRGB(116, 123, 145), Font = Enum.Font.GothamBold, TextSize = 9, TextXAlignment = Enum.TextXAlignment.Left}, Frame7)
+          local Frame8 = createInstance("Frame", {Name = "LogRows", Position = UDim2.new(0, 16, 0, 33), Size = UDim2.new(1, -32, 1, -41), BackgroundTransparency = 1}, Frame7)
+          createInstance("UIListLayout", {Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder, VerticalAlignment = Enum.VerticalAlignment.Bottom}, Frame8)
+          local Frame9 = createInstance("Frame", {Name = "ConnectionIndicator", Position = UDim2.new(0, 28, 0, 324), Size = UDim2.new(0, 7, 0, 7), BackgroundColor3 = Color3.fromRGB(101, 224, 168), BorderSizePixel = 0}, Frame2)
+          createInstance("UICorner", {CornerRadius = UDim.new(1, 0)}, Frame9)
+          local TextLabel3 = createInstance("TextLabel", {Name = "ConnectionText", Position = UDim2.new(0, 42, 0, 317), Size = UDim2.new(1, -70, 0, 21), BackgroundTransparency = 1, Text = "Encrypted connection active", TextColor3 = Color3.fromRGB(116, 123, 145), Font = Enum.Font.GothamMedium, TextSize = 10, TextXAlignment = Enum.TextXAlignment.Left}, Frame2)
           local n2 = 0
           local tween = nil
 
-          local function fn5(arg, text, arg2)
-            if flag then
+          local function updateLoaderProgressFunc(arg, text, arg2)
+            if isLoaderClosed then
               return
             end
 
@@ -227,69 +220,73 @@ if true then
             end
           end
 
-          v2 = fn5
+          v2 = updateLoaderProgressFunc
 
-          local function fn6(arg, arg2)
-            if flag then
+          local function addLoaderLogFunc(arg, arg2)
+            if isLoaderClosed then
               return
             end
 
             if ScreenGui.Parent then
-              while #tbl2 >= 5 do
-                local v11 = table.remove(tbl2, 1)
+              while #activeLogRows >= 5 do
+                local oldestRow = table.remove(activeLogRows, 1)
 
-                if v11 then
-                  v11:Destroy()
+                if oldestRow then
+                  oldestRow:Destroy()
                 end
               end
 
-              n += 1
-              local color
+              logRowIndex += 1
+              local statusColor
 
               if arg2 ~= "success" then
                 if arg2 ~= "warning" then
-                  color = Color3.fromRGB(255, 195, 86)
+                  statusColor = Color3.fromRGB(255, 195, 86)
                 else
-                  color = Color3.fromRGB(255, 119, 114)
+                  statusColor = Color3.fromRGB(255, 119, 114)
                 end
               else
-                color = Color3.fromRGB(101, 224, 168)
+                statusColor = Color3.fromRGB(101, 224, 168)
               end
 
-              local Frame10 = fn3("Frame", {Name = "ActivityRow", Size = UDim2.new(1, 0, 0, 17), BackgroundTransparency = 1, LayoutOrder = n}, Frame8)
-              local Frame11 = fn3("Frame", {Position = UDim2.new(0, 0, 0, 6), Size = UDim2.new(0, 6, 0, 6), BackgroundColor3 = color, BorderSizePixel = 0}, Frame10)
-              fn3("UICorner", {CornerRadius = UDim.new(1, 0)}, Frame11)
-              local tbl8 = {Position = UDim2.new(0, 15, 0, 0), Size = UDim2.new(1, -15, 1, 0), BackgroundTransparency = 1, Text = tostring(arg)}
-              local color2 = ((arg2 ~= "warning") and Color3.fromRGB(184, 190, 207)) or Color3.fromRGB(255, 153, 147)
-              tbl8.TextColor3 = color2
-              tbl8.TextTruncate = Enum.TextTruncate.AtEnd
-              tbl8.Font = Enum.Font.Code
-              tbl8.TextSize = 11
-              tbl8.TextXAlignment = Enum.TextXAlignment.Left
-              fn3("TextLabel", tbl8, Frame10)
-              table.insert(tbl2, Frame10)
+              local Frame10 = createInstance("Frame", {Name = "ActivityRow", Size = UDim2.new(1, 0, 0, 17), BackgroundTransparency = 1, LayoutOrder = logRowIndex}, Frame8)
+              local Frame11 = createInstance("Frame", {Position = UDim2.new(0, 0, 0, 6), Size = UDim2.new(0, 6, 0, 6), BackgroundColor3 = statusColor, BorderSizePixel = 0}, Frame10)
+              createInstance("UICorner", {CornerRadius = UDim.new(1, 0)}, Frame11)
+              local logTextColor = ((arg2 ~= "warning") and Color3.fromRGB(184, 190, 207)) or Color3.fromRGB(255, 153, 147)
+              createInstance("TextLabel", {
+                Position = UDim2.new(0, 15, 0, 0),
+                Size = UDim2.new(1, -15, 1, 0),
+                BackgroundTransparency = 1,
+                Text = tostring(arg),
+                TextColor3 = logTextColor,
+                TextTruncate = Enum.TextTruncate.AtEnd,
+                Font = Enum.Font.Code,
+                TextSize = 11,
+                TextXAlignment = Enum.TextXAlignment.Left
+              }, Frame10)
+              table.insert(activeLogRows, Frame10)
               return
             end
           end
 
-          v3 = fn6
+          v3 = addLoaderLogFunc
 
-          fn = function(arg)
-            if flag then
+          destroyLoaderUI = function(arg)
+            if isLoaderClosed then
               return
             end
 
             task.delay(math.max(0, tonumber(arg) or 0), function()
-              if flag then
+              if isLoaderClosed then
                 return
               end
 
               if ScreenGui.Parent then
-                flag = true
+                isLoaderClosed = true
 
-                if connection then
-                  connection:Disconnect()
-                  connection = nil
+                if viewportSizeConnection then
+                  viewportSizeConnection:Disconnect()
+                  viewportSizeConnection = nil
                 end
 
                 local tbl8 = {Scale = UIScale.Scale * 0.92}
@@ -297,21 +294,21 @@ if true then
                 TweenService:Create(Frame2, TweenInfo.new(0.18), {BackgroundTransparency = 1}):Play()
                 TweenService:Create(Frame, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play()
 
-                local function fn7()
+                local function destroyLoaderGUIFunc()
                   if ScreenGui then
                     ScreenGui:Destroy()
                     return
                   end
                 end
 
-                task.delay(0.22, fn7)
+                task.delay(0.22, destroyLoaderGUIFunc)
                 return
               end
             end)
           end
 
           TextButton.MouseButton1Click:Connect(function()
-            fn(0)
+            destroyLoaderUI(0)
           end)
 
           local tbl8 = {Scale = UIScale.Scale / 0.9}
@@ -329,11 +326,11 @@ if true then
       end
     end
 
-    fn2()
+    createWhitelistLoaderGUI()
 
-    local function fn3(arg, arg2)
+    local function setLoaderStatus(arg, arg2)
       if v then
-        if flag then
+        if isLoaderClosed then
           return
         end
 
@@ -359,100 +356,84 @@ if true then
             end
           end
 
-          v2(n2 or 0, str3, arg2)
-          v3(str2, arg2)
+          updateLoaderProgress(n2 or 0, str3, arg2)
+          addLoaderLog(str2, arg2)
         end)
 
         return
       end
     end
 
-    local function fn4(arg)
-      fn3(arg, "info")
+    local function logLoaderInfo(arg)
+      setLoaderStatus(arg, "info")
     end
 
-    local function fn5(arg)
+    local function logLoaderWarning(arg)
       warn(str .. tostring(arg))
-      fn3(arg, "warning")
+      setLoaderStatus(arg, "warning")
     end
 
     local now = os.clock()
-    fn4("Whitelist v5.0 starting...")
+    logLoaderInfo("Whitelist v5.0 starting...")
 
     local HttpService = game:GetService("HttpService")
     local Players = game:GetService("Players")
     local localPlayer = Players.LocalPlayer
 
     local handlers = {}
-    local tbl4 = {}
-    local v4 = request
-    local v5 = http_request
-    local request_ = syn and syn.request
-    local request_2 = http and http.request
-    tbl4[1] = v4
-    tbl4[2] = v5
-    tbl4[3] = request_
-    tbl4[4] = request_2
+    local candidateHandlers = {
+      request,
+      http_request,
+      syn and syn.request,
+      http and http.request
+    }
 
-    for _, v6 in ipairs(tbl4) do
-      if type(v6) == "function" then
-        local flag2 = false
+    for _, handlerFunc in ipairs(candidateHandlers) do
+      if type(handlerFunc) == "function" then
+        local exists = false
 
         for _, handler in ipairs(handlers) do
-          if handler == v6 then
-            flag2 = true
+          if handler == handlerFunc then
+            exists = true
             break
           end
         end
 
-        if not flag2 then
-          handlers[#handlers + 1] = v6
+        if not exists then
+          handlers[#handlers + 1] = handlerFunc
         end
       end
     end
 
     if true then
-      local function fn10(arg)
+      local function invokeHttpHandler(arg)
         return handlers[1](arg)
       end
 
-      local function fn11(arg)
-        local ok, result = pcall(fn10, arg)
+      local function pcallHttpHandler(arg)
+        local ok, result = pcall(invokeHttpHandler, arg)
         return ok, result
       end
 
-      local function fn12(arg, arg2)
-        return fn11(arg2)
+      local function sendHttpRequest(arg, arg2)
+        return pcallHttpHandler(arg2)
       end
 
-      local v6
+      local gethwidFunc = (type(gethwid) == "function" and gethwid) or nil
+      local getfingerprintFunc = (type(getfingerprint) == "function" and getfingerprint) or nil
 
-      if type(gethwid) ~= "function" then
-        v6 = nil
-      else
-        v6 = gethwid or nil
-      end
-
-      local v7
-
-      if type(getfingerprint) ~= "function" then
-        v7 = nil
-      else
-        v7 = getfingerprint or nil
-      end
-
-      local function fn13()
-        if v6 then
-          return v6()
+      local function getHWID()
+        if gethwidFunc then
+          return gethwidFunc()
         end
 
-        if v7 then
-          return v7()
+        if getfingerprintFunc then
+          return getfingerprintFunc()
         end
         return HttpService:GenerateGUID(false)
       end
 
-      local v8 = fn13()
+      local currentHwid = getHWID()
       local key_ = getgenv().Key
       local name
 
@@ -466,28 +447,21 @@ if true then
         name = "unknown"
       end
 
-      fn4("Initialized successfully (" .. (string.format("%.2f", os.clock() - now) .. "s)."))
-      if type(fn) == "function" then
-        pcall(fn, 0.5)
+      logLoaderInfo("Initialized successfully (" .. (string.format("%.2f", os.clock() - now) .. "s)."))
+      if type(destroyLoaderUI) == "function" then
+        pcall(destroyLoaderUI, 0.5)
       end
-      local v12 = key_
-      local userId
+      local currentKey = key_
+      local userId = (localPlayer and localPlayer.UserId) or 0
+      local userIdStr = tostring(userId)
+      local currentPlayerName = name
+      local configSettings = Config
 
-      if localPlayer then
-        userId = localPlayer.UserId or 0
-      else
-        userId = 0
-      end
-
-      local str3 = tostring(userId)
-      local v13 = name
-      local tbl5 = Config
-
-      if not tbl5 then
-        tbl5 = {Team = "Pirates", FastTween = true, AutoHop = true, HopWhenIdle = true, FpsBoost = true, FpsCap = 25, RemoveSFX = true, BlockAcc = false, BlackScreen = false, ["Buy Haki"] = {Skyjump = true, Buso = true, Soru = true, Observation = true}, CursedDualKatana = false, SoulGuitar = false, FarmBoneForx2EXP = false, WebhookEnabled = false, WebhookUrl = "", WebhookIntervalMinutes = 5}
+      if not configSettings then
+        configSettings = {Team = "Pirates", FastTween = true, AutoHop = true, HopWhenIdle = true, FpsBoost = true, FpsCap = 25, RemoveSFX = true, BlockAcc = false, BlackScreen = false, ["Buy Haki"] = {Skyjump = true, Buso = true, Soru = true, Observation = true}, CursedDualKatana = false, SoulGuitar = false, FarmBoneForx2EXP = false, WebhookEnabled = false, WebhookUrl = "", WebhookIntervalMinutes = 5}
       end
       do
-        if not tbl5.RemoveSFX then return end
+        if not configSettings.RemoveSFX then return end
         local function destroyIfNeeded(instance)
           if instance:IsA("Sound") then
             task.defer(function()
@@ -507,7 +481,7 @@ if true then
       end
 
       while true do
-        Config = tbl5
+        Config = configSettings
         local genv2
 
         if type(getgenv) ~= "function" then
@@ -529,11 +503,11 @@ if true then
 
         _G.NR = Config.BlackScreen == true
 
-        local function fn14()
+        local function toggle3DRendering()
           game:GetService("RunService"):Set3dRenderingEnabled(not _G.NR)
         end
 
-        pcall(fn14)
+        pcall(toggle3DRendering)
 
         if Config.FpsCap then
           if type(setfpscap) == "function" then
@@ -541,7 +515,7 @@ if true then
           end
         end
 
-        local function fn15()
+        local function autoSelectTeam()
           local str4 = ((Config.Team ~= "Marines") and "Pirates") or "Marines"
 
           pcall(function()
@@ -644,7 +618,7 @@ if true then
         while game.Players.LocalPlayer and not game.Players.LocalPlayer.Team do
           if (os.clock() - now2) < 6 then
             if game.Players.LocalPlayer:FindFirstChild("PlayerGui") then
-              fn15()
+              autoSelectTeam()
             end
 
             task.wait(0.15)
@@ -669,9 +643,9 @@ if true then
         end)
 
         _G.NR = Config.BlackScreen == true
-        tbl5 = pcall
+        configSettings = pcall
 
-        local function fn16()
+        local function toggle3DRenderingAlt()
           game:GetService("RunService"):Set3dRenderingEnabled(not _G.NR)
         end
 
@@ -680,11 +654,11 @@ if true then
         hasBoughtSoru = false
         hasBoughtObservation = false
 
-        tbl5(fn16)
+        configSettings(toggle3DRenderingAlt)
           local flag2 = os.time() >= 1756319996
           local flag3 = false
 
-          local function fn17()
+          local function autoServerHop()
             if flag3 then
               return
             end
@@ -745,7 +719,7 @@ if true then
             end)
           end
 
-          UnifiedReconnect = fn17
+          UnifiedReconnect = autoServerHop
 
           CheckKick = function(arg)
             local ok, name = pcall(function()
@@ -842,7 +816,7 @@ if true then
           local now3 = os.time()
           local tbl6 = {}
 
-          local function fn18(arg)
+          local function reportOnce(arg)
             if tbl6[arg] then
               return
             end
@@ -850,13 +824,13 @@ if true then
             warn(arg)
           end
 
-          Report = fn18
+          Report = reportOnce
 
           Notify = function(arg)
             require(game.ReplicatedStorage:WaitForChild("Notification")).new(arg):Display()
           end
 
-          local function fn19(arg)
+          local function formatNumberWithCommas(arg)
             local num = tonumber(arg)
             if num then
               local v14, v15, v16 = string.match(tostring(math.floor(num)), "^([^%d]*%d)(%d*)(.-)$")
@@ -869,7 +843,7 @@ if true then
             return tostring(0)
           end
 
-          local function fn20(arg)
+          local function createDashboardUI(arg)
             arg = arg or {}
             local startTime = arg.StartTime or os.time()
             local oldSessionTime = arg.OldSessionTime or 0
@@ -881,23 +855,23 @@ if true then
             local Workspace = game:GetService("Workspace")
             local currentCamera = Workspace.CurrentCamera or Workspace:FindFirstChildOfClass("Camera")
             local flag5 = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
-            local tbl = {Target = "rbxassetid://10734977012", Shield = "rbxassetid://10734951847", Cpu = "rbxassetid://10709813383", Crown = "rbxassetid://10709818626", Coins = "rbxassetid://10709811110", Gem = "rbxassetid://10723396000", Swords = "rbxassetid://10734975692", ChevronDown = "rbxassetid://10709790948", Minus = "rbxassetid://10734896206"}
-            local tbl7 = {IslandBg = Color3.fromRGB(10, 13, 20), DashboardBg = Color3.fromRGB(10, 13, 20), DeckBg = Color3.fromRGB(18, 23, 35), CardGlow = Color3.fromRGB(26, 34, 52), BorderGlass = Color3.fromRGB(48, 62, 88), ChampagneGold = Color3.fromRGB(255, 215, 64), GoldDark = Color3.fromRGB(218, 155, 0), EmeraldMint = Color3.fromRGB(52, 211, 153), AmberGold = Color3.fromRGB(251, 191, 36), VividPurple = Color3.fromRGB(168, 85, 247), CrystalCyan = Color3.fromRGB(56, 189, 248), TextPure = Color3.new(1, 1, 1), TextSub = Color3.fromRGB(226, 232, 240), TextDim = Color3.fromRGB(148, 163, 184), ErrorRed = Color3.fromRGB(244, 63, 94), FontTitle = Enum.Font.FredokaOne, FontBody = Enum.Font.FredokaOne, FontNumbers = Enum.Font.FredokaOne, SpringExpand = TweenInfo.new(0.48, Enum.EasingStyle.Back, Enum.EasingDirection.Out), SpringCollapse = TweenInfo.new(0.44, Enum.EasingStyle.Back, Enum.EasingDirection.In), SpringBouncy = TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), Quick = TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)}
+            local HUD_ICONS = {Target = "rbxassetid://10734977012", Shield = "rbxassetid://10734951847", Cpu = "rbxassetid://10709813383", Crown = "rbxassetid://10709818626", Coins = "rbxassetid://10709811110", Gem = "rbxassetid://10723396000", Swords = "rbxassetid://10734975692", ChevronDown = "rbxassetid://10709790948", Minus = "rbxassetid://10734896206"}
+            local HUD_THEME = {IslandBg = Color3.fromRGB(10, 13, 20), DashboardBg = Color3.fromRGB(10, 13, 20), DeckBg = Color3.fromRGB(18, 23, 35), CardGlow = Color3.fromRGB(26, 34, 52), BorderGlass = Color3.fromRGB(48, 62, 88), ChampagneGold = Color3.fromRGB(255, 215, 64), GoldDark = Color3.fromRGB(218, 155, 0), EmeraldMint = Color3.fromRGB(52, 211, 153), AmberGold = Color3.fromRGB(251, 191, 36), VividPurple = Color3.fromRGB(168, 85, 247), CrystalCyan = Color3.fromRGB(56, 189, 248), TextPure = Color3.new(1, 1, 1), TextSub = Color3.fromRGB(226, 232, 240), TextDim = Color3.fromRGB(148, 163, 184), ErrorRed = Color3.fromRGB(244, 63, 94), FontTitle = Enum.Font.FredokaOne, FontBody = Enum.Font.FredokaOne, FontNumbers = Enum.Font.FredokaOne, SpringExpand = TweenInfo.new(0.48, Enum.EasingStyle.Back, Enum.EasingDirection.Out), SpringCollapse = TweenInfo.new(0.44, Enum.EasingStyle.Back, Enum.EasingDirection.In), SpringBouncy = TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), Quick = TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)}
             local state = {IsOpen = false, ActiveTweens = setmetatable({}, {__mode = "k"}), Labels = {}, CurrentIslandTask = "", IslandTransitionId = 0, LastIslandTransitionAt = 0}
-            local tbl8 = {Instances = {}}
+            local hudElements = {Instances = {}}
 
-            local function fn21(arg2, arg3, arg4)
+            local function tweenUI(arg2, arg3, arg4)
               if state.ActiveTweens[arg2] then
                 state.ActiveTweens[arg2]:Cancel()
               end
 
-              local tween = TweenService:Create(arg2, arg4 or tbl7.Quick, arg3)
+              local tween = TweenService:Create(arg2, arg4 or HUD_THEME.Quick, arg3)
               state.ActiveTweens[arg2] = tween
               tween:Play()
               return tween
             end
 
-            local function fn22(arg2)
+            local function cancelUITween(arg2)
               local v14 = state.ActiveTweens[arg2]
 
               if v14 then
@@ -907,7 +881,7 @@ if true then
               end
             end
 
-            local function fn23(arg2, arg3, arg4)
+            local function onTweenCompleted(arg2, arg3, arg4)
               local connection2
 
               connection2 = arg2.Completed:Connect(function(playbackState)
@@ -927,7 +901,7 @@ if true then
               end)
             end
 
-            local function fn24(arg2, arg3)
+            local function createUIElement(arg2, arg3)
               local instance = Instance.new(arg2)
 
               for k, v14 in pairs(arg3) do
@@ -953,10 +927,10 @@ if true then
               Lighting_.BananaCatBlur:Destroy()
             end
 
-            local ScreenGui = fn24("ScreenGui", {Name = "BananaCat_HUD", Parent = playerGui, DisplayOrder = 999999, IgnoreGuiInset = true, ResetOnSpawn = false, ZIndexBehavior = Enum.ZIndexBehavior.Sibling})
+            local ScreenGui = createUIElement("ScreenGui", {Name = "BananaCat_HUD", Parent = playerGui, DisplayOrder = 999999, IgnoreGuiInset = true, ResetOnSpawn = false, ZIndexBehavior = Enum.ZIndexBehavior.Sibling})
             if genv2 and type(genv2) == "table" and genv2.BananaCat then genv2.BananaCat.HUD = ScreenGui end
 
-            local BlurEffect = fn24("BlurEffect", {Name = "BananaCatBlur", Parent = Lighting_, Size = 0})
+            local BlurEffect = createUIElement("BlurEffect", {Name = "BananaCatBlur", Parent = Lighting_, Size = 0})
             local n4, n5
 
             if flag5 then
@@ -972,54 +946,54 @@ if true then
             local n6 = (flag5 and 10) or 14
             tbl9.Position = UDim2.new(0.5, 0, 0, n6)
             tbl9.Size = udim2
-            tbl9.BackgroundColor3 = tbl7.IslandBg
+            tbl9.BackgroundColor3 = HUD_THEME.IslandBg
             tbl9.BackgroundTransparency = 0.12
             tbl9.Text = ""
             tbl9.AutoButtonColor = false
             tbl9.ClipsDescendants = false
             tbl9.ZIndex = 80
-            tbl9[1] = fn24("UICorner", {CornerRadius = UDim.new(1, 0)})
-            local TextButton = fn24("TextButton", tbl9)
-            local tbl10 = {Parent = fn24("UIStroke", {Parent = TextButton, Color = Color3.new(1, 1, 1), Thickness = 1.4, Transparency = 0.22}), Rotation = 45}
+            tbl9[1] = createUIElement("UICorner", {CornerRadius = UDim.new(1, 0)})
+            local TextButton = createUIElement("TextButton", tbl9)
+            local tbl10 = {Parent = createUIElement("UIStroke", {Parent = TextButton, Color = Color3.new(1, 1, 1), Thickness = 1.4, Transparency = 0.22}), Rotation = 45}
             local tbl11 = {}
-            local v14 = ColorSequenceKeypoint.new(0, tbl7.ChampagneGold)
-            local v15 = ColorSequenceKeypoint.new(0.5, tbl7.CrystalCyan)
-            local borderGlass = tbl7.BorderGlass
+            local v14 = ColorSequenceKeypoint.new(0, HUD_THEME.ChampagneGold)
+            local v15 = ColorSequenceKeypoint.new(0.5, HUD_THEME.CrystalCyan)
+            local borderGlass = HUD_THEME.BorderGlass
             tbl11[1] = v14
             tbl11[2] = v15
             tbl11[3] = ColorSequenceKeypoint.new(1, borderGlass)
             tbl10.Color = ColorSequence.new(tbl11)
-            local UIGradient = fn24("UIGradient", tbl10)
-            local Frame = fn24("Frame", {Parent = TextButton, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(0, 16, 0.5, 0), Size = UDim2.new(0, 9, 0, 9), BackgroundColor3 = tbl7.EmeraldMint, BackgroundTransparency = 1, BorderSizePixel = 0, ZIndex = 79, (fn24("UICorner", {CornerRadius = UDim.new(1, 0)}))})
-            local Frame2 = fn24("Frame", {Parent = TextButton, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(0, 16, 0.5, 0), Size = UDim2.new(0, 9, 0, 9), BackgroundColor3 = tbl7.EmeraldMint, BorderSizePixel = 0, ZIndex = 81, (fn24("UICorner", {CornerRadius = UDim.new(1, 0)}))})
-            local tbl12 = {Parent = TextButton, AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 28, 0.5, 0), Size = UDim2.new(0, 64, 0, 22), BackgroundTransparency = 1, Font = tbl7.FontTitle, Text = "BANANA", TextColor3 = tbl7.ChampagneGold}
+            local UIGradient = createUIElement("UIGradient", tbl10)
+            local Frame = createUIElement("Frame", {Parent = TextButton, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(0, 16, 0.5, 0), Size = UDim2.new(0, 9, 0, 9), BackgroundColor3 = HUD_THEME.EmeraldMint, BackgroundTransparency = 1, BorderSizePixel = 0, ZIndex = 79, (createUIElement("UICorner", {CornerRadius = UDim.new(1, 0)}))})
+            local Frame2 = createUIElement("Frame", {Parent = TextButton, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(0, 16, 0.5, 0), Size = UDim2.new(0, 9, 0, 9), BackgroundColor3 = HUD_THEME.EmeraldMint, BorderSizePixel = 0, ZIndex = 81, (createUIElement("UICorner", {CornerRadius = UDim.new(1, 0)}))})
+            local tbl12 = {Parent = TextButton, AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 28, 0.5, 0), Size = UDim2.new(0, 64, 0, 22), BackgroundTransparency = 1, Font = HUD_THEME.FontTitle, Text = "BANANA", TextColor3 = HUD_THEME.ChampagneGold}
             local textSize = (flag5 and 12) or 13
             tbl12.TextSize = textSize
             tbl12.TextXAlignment = Enum.TextXAlignment.Left
             tbl12.ZIndex = 81
-            fn24("TextLabel", tbl12)
-            local tbl13 = {Name = "CompactTaskLabel", Parent = fn24("Frame", {Parent = TextButton, Position = UDim2.new(0, 96, 0, 0), Size = UDim2.new(1, -124, 1, 0), BackgroundTransparency = 1, ClipsDescendants = true, ZIndex = 81}), AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 0, 0.5, 0), Size = UDim2.new(1, 0, 1, 0), BackgroundTransparency = 1, Font = tbl7.FontBody, Text = "LevelFarm • Active", TextColor3 = tbl7.TextPure}
+            createUIElement("TextLabel", tbl12)
+            local tbl13 = {Name = "CompactTaskLabel", Parent = createUIElement("Frame", {Parent = TextButton, Position = UDim2.new(0, 96, 0, 0), Size = UDim2.new(1, -124, 1, 0), BackgroundTransparency = 1, ClipsDescendants = true, ZIndex = 81}), AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 0, 0.5, 0), Size = UDim2.new(1, 0, 1, 0), BackgroundTransparency = 1, Font = HUD_THEME.FontBody, Text = "LevelFarm • Active", TextColor3 = HUD_THEME.TextPure}
             local textSize2 = (flag5 and 11.5) or 12.5
             tbl13.TextSize = textSize2
             tbl13.TextTruncate = Enum.TextTruncate.AtEnd
             tbl13.TextXAlignment = Enum.TextXAlignment.Left
             tbl13.ZIndex = 82
-            local TextLabel = fn24("TextLabel", tbl13)
-            local ImageLabel = fn24("ImageLabel", {Parent = TextButton, AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -10, 0.5, 0), Size = UDim2.new(0, 14, 0, 14), BackgroundTransparency = 1, Image = tbl.ChevronDown, ImageColor3 = tbl7.ChampagneGold, Rotation = 0, ZIndex = 82})
+            local TextLabel = createUIElement("TextLabel", tbl13)
+            local ImageLabel = createUIElement("ImageLabel", {Parent = TextButton, AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -10, 0.5, 0), Size = UDim2.new(0, 14, 0, 14), BackgroundTransparency = 1, Image = HUD_ICONS.ChevronDown, ImageColor3 = HUD_THEME.ChampagneGold, Rotation = 0, ZIndex = 82})
 
-            local function fn25(backgroundColor3)
+            local function playPillPulse(backgroundColor3)
               Frame.BackgroundColor3 = backgroundColor3 or Frame2.BackgroundColor3
               Frame.Size = UDim2.new(0, 9, 0, 9)
               Frame.BackgroundTransparency = 0.35
-              fn21(Frame, {Size = UDim2.new(0, 26, 0, 26), BackgroundTransparency = 1}, TweenInfo.new(0.65, Enum.EasingStyle.Quad, Enum.EasingDirection.Out))
+              tweenUI(Frame, {Size = UDim2.new(0, 26, 0, 26), BackgroundTransparency = 1}, TweenInfo.new(0.65, Enum.EasingStyle.Quad, Enum.EasingDirection.Out))
             end
 
-            local function fn26()
+            local function rotatePillGradient()
               UIGradient.Rotation = 45
-              fn21(UIGradient, {Rotation = 225}, TweenInfo.new(0.6, Enum.EasingStyle.Quart, Enum.EasingDirection.Out))
+              tweenUI(UIGradient, {Rotation = 225}, TweenInfo.new(0.6, Enum.EasingStyle.Quart, Enum.EasingDirection.Out))
             end
 
-            local function fn27(arg2, backgroundColor3)
+            local function setIslandTask(arg2, backgroundColor3)
               local currentIslandTask = tostring(arg2 or "Active")
 
               if state.CurrentIslandTask ~= currentIslandTask then
@@ -1031,17 +1005,17 @@ if true then
                 state.LastIslandTransitionAt = now4
 
                 if flag6 then
-                  fn22(TextLabel)
-                  fn22(TextButton)
-                  fn22(Frame2)
-                  fn22(Frame)
-                  fn22(UIGradient)
+                  cancelUITween(TextLabel)
+                  cancelUITween(TextButton)
+                  cancelUITween(Frame2)
+                  cancelUITween(Frame)
+                  cancelUITween(UIGradient)
                   TextLabel.Text = currentIslandTask
                   TextLabel.Position = UDim2.new(0, 0, 0.5, 0)
                   TextLabel.TextTransparency = 0
                   TextButton.Size = udim2
                   Frame2.Size = UDim2.new(0, 9, 0, 9)
-                  backgroundColor3 = backgroundColor3 or tbl7.EmeraldMint
+                  backgroundColor3 = backgroundColor3 or HUD_THEME.EmeraldMint
                   Frame2.BackgroundColor3 = backgroundColor3
                   Frame.Size = UDim2.new(0, 9, 0, 9)
                   Frame.BackgroundTransparency = 1
@@ -1051,27 +1025,27 @@ if true then
                 local function fn28()
                   TextLabel.Text = currentIslandTask
                   TextLabel.Position = UDim2.new(0, 0, 0.5, 18)
-                  fn21(TextLabel, {Position = UDim2.new(0, 0, 0.5, 0), TextTransparency = 0}, tbl7.SpringBouncy)
+                  tweenUI(TextLabel, {Position = UDim2.new(0, 0, 0.5, 0), TextTransparency = 0}, HUD_THEME.SpringBouncy)
                 end
 
-                fn23(fn21(TextLabel, {Position = UDim2.new(0, 0, 0.5, -18), TextTransparency = 1}, tbl7.Quick), islandTransitionId, fn28)
+                onTweenCompleted(tweenUI(TextLabel, {Position = UDim2.new(0, 0, 0.5, -18), TextTransparency = 1}, HUD_THEME.Quick), islandTransitionId, fn28)
 
                 local function fn29()
-                  fn23(fn21(TextButton, {Size = UDim2.fromOffset(n4 - 6, n5 + 3)}, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)), islandTransitionId, function()
-                    fn21(TextButton, {Size = udim2}, tbl7.SpringBouncy)
+                  onTweenCompleted(tweenUI(TextButton, {Size = UDim2.fromOffset(n4 - 6, n5 + 3)}, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)), islandTransitionId, function()
+                    tweenUI(TextButton, {Size = udim2}, HUD_THEME.SpringBouncy)
                   end)
                 end
 
-                fn23(fn21(TextButton, {Size = UDim2.fromOffset(n4 + 24, n5 - 4)}, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)), islandTransitionId, fn29)
-                fn25(backgroundColor3)
-                fn26()
+                onTweenCompleted(tweenUI(TextButton, {Size = UDim2.fromOffset(n4 + 24, n5 - 4)}, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)), islandTransitionId, fn29)
+                playPillPulse(backgroundColor3)
+                rotatePillGradient()
 
                 if backgroundColor3 then
                   local function fn30()
-                    fn21(Frame2, {Size = UDim2.new(0, 9, 0, 9)}, tbl7.SpringBouncy)
+                    tweenUI(Frame2, {Size = UDim2.new(0, 9, 0, 9)}, HUD_THEME.SpringBouncy)
                   end
 
-                  fn23(fn21(Frame2, {BackgroundColor3 = backgroundColor3, Size = UDim2.new(0, 12, 0, 12)}, tbl7.Quick), islandTransitionId, fn30)
+                  onTweenCompleted(tweenUI(Frame2, {BackgroundColor3 = backgroundColor3, Size = UDim2.new(0, 12, 0, 12)}, HUD_THEME.Quick), islandTransitionId, fn30)
                   return
                 end
 
@@ -1082,10 +1056,10 @@ if true then
             local n7 = (flag5 and 28) or 33
             local udim22 = UDim2.new(0.5, 0, 0, n7)
             local udim23 = UDim2.new(0.5, 0, 0.5, 0)
-            local Frame3 = fn24("Frame", {Name = "Dashboard", Parent = ScreenGui, AnchorPoint = Vector2.new(0.5, 0.5), Position = udim23, Size = UDim2.new(0, 600, 0, 440), BackgroundColor3 = tbl7.DashboardBg, BackgroundTransparency = 0.18, ClipsDescendants = true, Visible = true, ZIndex = 50})
-            local UIScale = fn24("UIScale", {Parent = Frame3, Scale = 1})
+            local Frame3 = createUIElement("Frame", {Name = "Dashboard", Parent = ScreenGui, AnchorPoint = Vector2.new(0.5, 0.5), Position = udim23, Size = UDim2.new(0, 600, 0, 440), BackgroundColor3 = HUD_THEME.DashboardBg, BackgroundTransparency = 0.18, ClipsDescendants = true, Visible = true, ZIndex = 50})
+            local UIScale = createUIElement("UIScale", {Parent = Frame3, Scale = 1})
 
-            local function fn28()
+            local function updateDashboardScale()
               local viewportSize
 
               if currentCamera then
@@ -1124,26 +1098,26 @@ if true then
             end
 
             if currentCamera then
-              currentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(fn28)
-              fn28()
+              currentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(updateDashboardScale)
+              updateDashboardScale()
             end
 
-            local UICorner = fn24("UICorner", {Parent = Frame3, CornerRadius = UDim.new(0, 24)})
+            local UICorner = createUIElement("UICorner", {Parent = Frame3, CornerRadius = UDim.new(0, 24)})
             local tbl14 = {Parent = Frame3, Color = Color3.new(1, 1, 1), Thickness = 1.4, Transparency = 0.22}
             local tbl15 = {}
             local tbl16 = {}
-            local v16 = ColorSequenceKeypoint.new(0, tbl7.ChampagneGold)
-            local v17 = ColorSequenceKeypoint.new(0.5, tbl7.CrystalCyan)
-            local borderGlass2 = tbl7.BorderGlass
+            local v16 = ColorSequenceKeypoint.new(0, HUD_THEME.ChampagneGold)
+            local v17 = ColorSequenceKeypoint.new(0.5, HUD_THEME.CrystalCyan)
+            local borderGlass2 = HUD_THEME.BorderGlass
             tbl16[1] = v16
             tbl16[2] = v17
             tbl16[3] = ColorSequenceKeypoint.new(1, borderGlass2)
             tbl15.Color = ColorSequence.new(tbl16)
             tbl15.Rotation = 45
-            tbl14[1] = fn24("UIGradient", tbl15)
-            fn24("UIStroke", tbl14)
+            tbl14[1] = createUIElement("UIGradient", tbl15)
+            createUIElement("UIStroke", tbl14)
             local tbl17 = {Parent = Frame3, Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.93, BorderSizePixel = 0, ZIndex = 50}
-            local UICorner2 = fn24("UICorner", {CornerRadius = UDim.new(0, 24)})
+            local UICorner2 = createUIElement("UICorner", {CornerRadius = UDim.new(0, 24)})
             local tbl18 = {}
             local tbl19 = {}
             local v18 = ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1))
@@ -1160,12 +1134,12 @@ if true then
             tbl20[3] = NumberSequenceKeypoint.new(1, 1)
             tbl18.Transparency = NumberSequence.new(tbl20)
             tbl18.Rotation = 65
-            local UIGradient2 = fn24("UIGradient", tbl18)
+            local UIGradient2 = createUIElement("UIGradient", tbl18)
             tbl17[1] = UICorner2
             tbl17[2] = UIGradient2
-            local Frame4 = fn24("Frame", tbl17)
+            local Frame4 = createUIElement("Frame", tbl17)
             local tbl21 = {Parent = Frame3, Position = UDim2.new(0, 1, 0, 1), Size = UDim2.new(1, -2, 1, -2), BackgroundTransparency = 1, BorderSizePixel = 0, ZIndex = 50}
-            local UICorner3 = fn24("UICorner", {CornerRadius = UDim.new(0, 23)})
+            local UICorner3 = createUIElement("UICorner", {CornerRadius = UDim.new(0, 23)})
             local tbl22 = {Color = Color3.new(1, 1, 1), Thickness = 1, Transparency = 0.78}
             local tbl23 = {}
             local tbl24 = {}
@@ -1176,44 +1150,44 @@ if true then
             tbl24[3] = ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 30, 45))
             tbl23.Color = ColorSequence.new(tbl24)
             tbl23.Rotation = 90
-            tbl22[1] = fn24("UIGradient", tbl23)
-            local UIStroke = fn24("UIStroke", tbl22)
+            tbl22[1] = createUIElement("UIGradient", tbl23)
+            local UIStroke = createUIElement("UIStroke", tbl22)
             tbl21[1] = UICorner3
             tbl21[2] = UIStroke
-            local Frame5 = fn24("Frame", tbl21)
-            local tbl25 = {Parent = Frame3, Size = UDim2.new(1, 0, 0, 46), BackgroundColor3 = tbl7.DeckBg, BackgroundTransparency = 0.5, ZIndex = 52}
-            local UICorner4 = fn24("UICorner", {CornerRadius = UDim.new(0, 24)})
-            local deckBg = tbl7.DeckBg
-            local UIGradient3 = fn24("UIGradient", {Color = ColorSequence.new({ColorSequenceKeypoint.new(0, tbl7.CardGlow), ColorSequenceKeypoint.new(1, deckBg)}), Rotation = 90})
+            local Frame5 = createUIElement("Frame", tbl21)
+            local tbl25 = {Parent = Frame3, Size = UDim2.new(1, 0, 0, 46), BackgroundColor3 = HUD_THEME.DeckBg, BackgroundTransparency = 0.5, ZIndex = 52}
+            local UICorner4 = createUIElement("UICorner", {CornerRadius = UDim.new(0, 24)})
+            local deckBg = HUD_THEME.DeckBg
+            local UIGradient3 = createUIElement("UIGradient", {Color = ColorSequence.new({ColorSequenceKeypoint.new(0, HUD_THEME.CardGlow), ColorSequenceKeypoint.new(1, deckBg)}), Rotation = 90})
             tbl25[1] = UICorner4
             tbl25[2] = UIGradient3
-            local Frame6 = fn24("Frame", tbl25)
-            fn24("TextLabel", {Parent = Frame6, Position = UDim2.new(0, 18, 0, 0), Size = UDim2.new(0, 190, 1, 0), BackgroundTransparency = 1, Font = tbl7.FontTitle, Text = "BANANA CAT HUB", TextColor3 = tbl7.ChampagneGold, TextSize = 17, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 53})
+            local Frame6 = createUIElement("Frame", tbl25)
+            createUIElement("TextLabel", {Parent = Frame6, Position = UDim2.new(0, 18, 0, 0), Size = UDim2.new(0, 190, 1, 0), BackgroundTransparency = 1, Font = HUD_THEME.FontTitle, Text = "BANANA CAT HUB", TextColor3 = HUD_THEME.ChampagneGold, TextSize = 17, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 53})
             local tbl26 = {Parent = Frame6, Position = UDim2.new(0, 195, 0.5, -11), Size = UDim2.new(0, 80, 0, 22), BackgroundColor3 = Color3.fromRGB(16, 38, 28), BackgroundTransparency = 0.3, ZIndex = 53}
-            local UICorner5 = fn24("UICorner", {CornerRadius = UDim.new(1, 0)})
-            local UIStroke2 = fn24("UIStroke", {Color = tbl7.EmeraldMint, Thickness = 1, Transparency = 0.4})
-            local Frame7 = fn24("Frame", {AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 9, 0.5, 0), Size = UDim2.new(0, 6, 0, 6), BackgroundColor3 = tbl7.EmeraldMint, BorderSizePixel = 0, ZIndex = 54, (fn24("UICorner", {CornerRadius = UDim.new(1, 0)}))})
-            local TextLabel2 = fn24("TextLabel", {Position = UDim2.new(0, 20, 0, 0), Size = UDim2.new(1, -24, 1, 0), BackgroundTransparency = 1, Font = tbl7.FontTitle, Text = "ACTIVE", TextColor3 = tbl7.EmeraldMint, TextSize = 10.5, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 54})
+            local UICorner5 = createUIElement("UICorner", {CornerRadius = UDim.new(1, 0)})
+            local UIStroke2 = createUIElement("UIStroke", {Color = HUD_THEME.EmeraldMint, Thickness = 1, Transparency = 0.4})
+            local Frame7 = createUIElement("Frame", {AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 9, 0.5, 0), Size = UDim2.new(0, 6, 0, 6), BackgroundColor3 = HUD_THEME.EmeraldMint, BorderSizePixel = 0, ZIndex = 54, (createUIElement("UICorner", {CornerRadius = UDim.new(1, 0)}))})
+            local TextLabel2 = createUIElement("TextLabel", {Position = UDim2.new(0, 20, 0, 0), Size = UDim2.new(1, -24, 1, 0), BackgroundTransparency = 1, Font = HUD_THEME.FontTitle, Text = "ACTIVE", TextColor3 = HUD_THEME.EmeraldMint, TextSize = 10.5, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 54})
             tbl26[1] = UICorner5
             tbl26[2] = UIStroke2
             tbl26[3] = Frame7
             tbl26[4] = TextLabel2
-            fn24("Frame", tbl26)
-            local tbl27 = {Parent = Frame6, AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -12, 0.5, 0), Size = UDim2.new(0, 28, 0, 28), BackgroundColor3 = tbl7.DeckBg, BackgroundTransparency = 0.3, Text = "", AutoButtonColor = false, ZIndex = 54}
-            local UICorner6 = fn24("UICorner", {CornerRadius = UDim.new(1, 0)})
-            local UIStroke3 = fn24("UIStroke", {Color = tbl7.BorderGlass, Thickness = 1, Transparency = 0.4})
-            local ImageLabel2 = fn24("ImageLabel", {AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(0.5, 0, 0.5, 0), Size = UDim2.new(0, 13, 0, 13), BackgroundTransparency = 1, Image = tbl.Minus, ImageColor3 = tbl7.TextPure, ZIndex = 55})
+            createUIElement("Frame", tbl26)
+            local tbl27 = {Parent = Frame6, AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -12, 0.5, 0), Size = UDim2.new(0, 28, 0, 28), BackgroundColor3 = HUD_THEME.DeckBg, BackgroundTransparency = 0.3, Text = "", AutoButtonColor = false, ZIndex = 54}
+            local UICorner6 = createUIElement("UICorner", {CornerRadius = UDim.new(1, 0)})
+            local UIStroke3 = createUIElement("UIStroke", {Color = HUD_THEME.BorderGlass, Thickness = 1, Transparency = 0.4})
+            local ImageLabel2 = createUIElement("ImageLabel", {AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(0.5, 0, 0.5, 0), Size = UDim2.new(0, 13, 0, 13), BackgroundTransparency = 1, Image = HUD_ICONS.Minus, ImageColor3 = HUD_THEME.TextPure, ZIndex = 55})
             tbl27[1] = UICorner6
             tbl27[2] = UIStroke3
             tbl27[3] = ImageLabel2
-            local TextButton2 = fn24("TextButton", tbl27)
+            local TextButton2 = createUIElement("TextButton", tbl27)
 
             TextButton2.MouseEnter:Connect(function()
-              fn21(TextButton2, {BackgroundColor3 = tbl7.GoldDark}, tbl7.Quick)
+              tweenUI(TextButton2, {BackgroundColor3 = HUD_THEME.GoldDark}, HUD_THEME.Quick)
             end)
 
             TextButton2.MouseLeave:Connect(function()
-              fn21(TextButton2, {BackgroundColor3 = tbl7.DeckBg}, tbl7.Quick)
+              tweenUI(TextButton2, {BackgroundColor3 = HUD_THEME.DeckBg}, HUD_THEME.Quick)
             end)
 
             local flag6 = false
@@ -1245,7 +1219,7 @@ if true then
             local inputChanged = Frame6.InputChanged
             local connect = inputChanged.Connect
 
-            local function fn29(arg2)
+            local function onDragInput(arg2)
               if arg2.UserInputType ~= Enum.UserInputType.MouseMovement then
                 if arg2.UserInputType ~= Enum.UserInputType.Touch then
                   return
@@ -1257,7 +1231,7 @@ if true then
               v25 = arg2
             end
 
-            connect(inputChanged, fn29)
+            connect(inputChanged, onDragInput)
 
             UserInputService.InputChanged:Connect(function(input)
               if input == v25 then
@@ -1271,82 +1245,82 @@ if true then
               end
             end)
 
-            local function fn30(arg2, arg3, arg4, arg5)
-              local tbl28 = {Parent = arg2, Position = arg3, Size = arg4, BackgroundColor3 = tbl7.DeckBg, BackgroundTransparency = 0.45, ZIndex = 52}
-              local UICorner7 = fn24("UICorner", {CornerRadius = UDim.new(0, 12)})
+            local function createDashboardCard(arg2, arg3, arg4, arg5)
+              local tbl28 = {Parent = arg2, Position = arg3, Size = arg4, BackgroundColor3 = HUD_THEME.DeckBg, BackgroundTransparency = 0.45, ZIndex = 52}
+              local UICorner7 = createUIElement("UICorner", {CornerRadius = UDim.new(0, 12)})
               local tbl29 = {Name = "Stroke", Color = Color3.new(1, 1, 1), Thickness = 1.1, Transparency = 0.4}
               local tbl30 = {}
               local tbl31 = {}
               local v28 = ColorSequenceKeypoint.new(0, arg5)
-              local borderGlass3 = tbl7.BorderGlass
+              local borderGlass3 = HUD_THEME.BorderGlass
               tbl31[1] = v28
               tbl31[2] = ColorSequenceKeypoint.new(1, borderGlass3)
               tbl30.Color = ColorSequence.new(tbl31)
               tbl30.Rotation = 45
-              tbl29[1] = fn24("UIGradient", tbl30)
-              local UIStroke4 = fn24("UIStroke", tbl29)
-              local deckBg2 = tbl7.DeckBg
-              local tbl32 = {Color = ColorSequence.new({ColorSequenceKeypoint.new(0, tbl7.CardGlow), ColorSequenceKeypoint.new(1, deckBg2)}), Rotation = 90}
+              tbl29[1] = createUIElement("UIGradient", tbl30)
+              local UIStroke4 = createUIElement("UIStroke", tbl29)
+              local deckBg2 = HUD_THEME.DeckBg
+              local tbl32 = {Color = ColorSequence.new({ColorSequenceKeypoint.new(0, HUD_THEME.CardGlow), ColorSequenceKeypoint.new(1, deckBg2)}), Rotation = 90}
               tbl28[1] = UICorner7
               tbl28[2] = UIStroke4
-              tbl28[3] = fn24("UIGradient", tbl32)
-              return fn24("Frame", tbl28)
+              tbl28[3] = createUIElement("UIGradient", tbl32)
+              return createUIElement("Frame", tbl28)
             end
 
-            local v28 = fn30(Frame3, UDim2.new(0, 14, 0, 52), UDim2.new(1, -28, 0, 36), tbl7.BorderGlass)
+            local v28 = createDashboardCard(Frame3, UDim2.new(0, 14, 0, 52), UDim2.new(1, -28, 0, 36), HUD_THEME.BorderGlass)
             local tbl28 = {Parent = v28, AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 6, 0.5, 0), Size = UDim2.new(0, 26, 0, 26), BackgroundTransparency = 1, Image = "rbxthumb://type=AvatarHeadShot&id=" .. (tostring(localPlayer3.UserId) .. "&w=150&h=150"), ZIndex = 53}
-            local UICorner7 = fn24("UICorner", {CornerRadius = UDim.new(1, 0)})
-            local UIStroke4 = fn24("UIStroke", {Color = tbl7.ChampagneGold, Thickness = 1, Transparency = 0.5})
+            local UICorner7 = createUIElement("UICorner", {CornerRadius = UDim.new(1, 0)})
+            local UIStroke4 = createUIElement("UIStroke", {Color = HUD_THEME.ChampagneGold, Thickness = 1, Transparency = 0.5})
             tbl28[1] = UICorner7
             tbl28[2] = UIStroke4
-            fn24("ImageLabel", tbl28)
-            fn24("TextLabel", {Parent = v28, Position = UDim2.new(0, 38, 0, 0), Size = UDim2.new(0, 230, 1, 0), BackgroundTransparency = 1, Font = tbl7.FontTitle, Text = tostring(localPlayer3.DisplayName) .. (" (@" .. (tostring(localPlayer3.Name) .. ")")), TextColor3 = tbl7.TextPure, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 53})
-            local TextLabel3 = fn24("TextLabel", {Parent = v28, AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -12, 0.5, 0), Size = UDim2.new(0, 270, 1, 0), BackgroundTransparency = 1, Font = tbl7.FontBody, Text = "Uptime: 00:00:00", TextColor3 = tbl7.ChampagneGold, TextSize = 12, TextXAlignment = Enum.TextXAlignment.Right, ZIndex = 53})
-            local v29 = fn30(Frame3, UDim2.new(0, 14, 0, 94), UDim2.new(0, 355, 0, 140), tbl7.ChampagneGold)
+            createUIElement("ImageLabel", tbl28)
+            createUIElement("TextLabel", {Parent = v28, Position = UDim2.new(0, 38, 0, 0), Size = UDim2.new(0, 230, 1, 0), BackgroundTransparency = 1, Font = HUD_THEME.FontTitle, Text = tostring(localPlayer3.DisplayName) .. (" (@" .. (tostring(localPlayer3.Name) .. ")")), TextColor3 = HUD_THEME.TextPure, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 53})
+            local TextLabel3 = createUIElement("TextLabel", {Parent = v28, AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -12, 0.5, 0), Size = UDim2.new(0, 270, 1, 0), BackgroundTransparency = 1, Font = HUD_THEME.FontBody, Text = "Uptime: 00:00:00", TextColor3 = HUD_THEME.ChampagneGold, TextSize = 12, TextXAlignment = Enum.TextXAlignment.Right, ZIndex = 53})
+            local v29 = createDashboardCard(Frame3, UDim2.new(0, 14, 0, 94), UDim2.new(0, 355, 0, 140), HUD_THEME.ChampagneGold)
             local tbl29 = {Parent = v29, Position = UDim2.new(0, 12, 0, 10), Size = UDim2.new(0, 138, 0, 20), BackgroundColor3 = Color3.fromRGB(38, 32, 16), BackgroundTransparency = 0.3, ZIndex = 53}
-            local UICorner8 = fn24("UICorner", {CornerRadius = UDim.new(1, 0)})
-            local UIStroke5 = fn24("UIStroke", {Color = tbl7.ChampagneGold, Thickness = 1, Transparency = 0.4})
-            local ImageLabel3 = fn24("ImageLabel", {AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 8, 0.5, 0), Size = UDim2.new(0, 12, 0, 12), BackgroundTransparency = 1, Image = tbl.Target, ImageColor3 = tbl7.ChampagneGold, ZIndex = 54})
-            local TextLabel4 = fn24("TextLabel", {Position = UDim2.new(0, 24, 0, 0), Size = UDim2.new(1, -26, 1, 0), BackgroundTransparency = 1, Font = tbl7.FontTitle, Text = "MISSION CONTROL", TextColor3 = tbl7.ChampagneGold, TextSize = 10, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 54})
+            local UICorner8 = createUIElement("UICorner", {CornerRadius = UDim.new(1, 0)})
+            local UIStroke5 = createUIElement("UIStroke", {Color = HUD_THEME.ChampagneGold, Thickness = 1, Transparency = 0.4})
+            local ImageLabel3 = createUIElement("ImageLabel", {AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 8, 0.5, 0), Size = UDim2.new(0, 12, 0, 12), BackgroundTransparency = 1, Image = HUD_ICONS.Target, ImageColor3 = HUD_THEME.ChampagneGold, ZIndex = 54})
+            local TextLabel4 = createUIElement("TextLabel", {Position = UDim2.new(0, 24, 0, 0), Size = UDim2.new(1, -26, 1, 0), BackgroundTransparency = 1, Font = HUD_THEME.FontTitle, Text = "MISSION CONTROL", TextColor3 = HUD_THEME.ChampagneGold, TextSize = 10, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 54})
             tbl29[1] = UICorner8
             tbl29[2] = UIStroke5
             tbl29[3] = ImageLabel3
             tbl29[4] = TextLabel4
-            fn24("Frame", tbl29)
-            local TextLabel5 = fn24("TextLabel", {Parent = v29, Position = UDim2.new(0, 12, 0, 36), Size = UDim2.new(1, -24, 0, 94), BackgroundTransparency = 1, Font = tbl7.FontBody, Text = "...", TextColor3 = tbl7.TextPure, TextSize = 13.5, TextWrapped = true, RichText = true, TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, ZIndex = 53})
-            local Frame8 = fn24("Frame", {Parent = Frame3, Position = UDim2.new(0, 377, 0, 94), Size = UDim2.new(0, 209, 0, 140), BackgroundTransparency = 1, ZIndex = 52})
-            local v30 = fn30(Frame8, UDim2.new(0, 0, 0, 0), UDim2.new(1, 0, 0, 66), tbl7.CrystalCyan)
-            fn24("ImageLabel", {Parent = v30, Position = UDim2.new(0, 10, 0, 7), Size = UDim2.new(0, 13, 0, 13), BackgroundTransparency = 1, Image = tbl.Shield, ImageColor3 = tbl7.CrystalCyan, ZIndex = 53})
-            fn24("TextLabel", {Parent = v30, Position = UDim2.new(0, 28, 0, 6), Size = UDim2.new(1, -38, 0, 14), BackgroundTransparency = 1, Font = tbl7.FontTitle, Text = "AUXILIARY TASK", TextColor3 = tbl7.CrystalCyan, TextSize = 10.5, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 53})
-            local TextLabel6 = fn24("TextLabel", {Parent = v30, Position = UDim2.new(0, 10, 0, 24), Size = UDim2.new(1, -20, 0, 36), BackgroundTransparency = 1, Font = tbl7.FontBody, Text = "None", TextColor3 = tbl7.TextSub, TextSize = 12.5, TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, ZIndex = 53})
-            local v31 = fn30(Frame8, UDim2.new(0, 0, 0, 74), UDim2.new(1, 0, 0, 66), tbl7.EmeraldMint)
-            fn24("ImageLabel", {Parent = v31, Position = UDim2.new(0, 10, 0, 7), Size = UDim2.new(0, 13, 0, 13), BackgroundTransparency = 1, Image = tbl.Cpu, ImageColor3 = tbl7.EmeraldMint, ZIndex = 53})
-            fn24("TextLabel", {Parent = v31, Position = UDim2.new(0, 28, 0, 6), Size = UDim2.new(1, -38, 0, 14), BackgroundTransparency = 1, Font = tbl7.FontTitle, Text = "ENGINE CONTROLLER", TextColor3 = tbl7.EmeraldMint, TextSize = 10.5, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 53})
-            local TextLabel7 = fn24("TextLabel", {Parent = v31, Position = UDim2.new(0, 10, 0, 24), Size = UDim2.new(1, -20, 0, 36), BackgroundTransparency = 1, Font = tbl7.FontBody, Text = "Idle", TextColor3 = tbl7.TextSub, TextSize = 12.5, TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, ZIndex = 53})
-            local Frame9 = fn24("Frame", {Parent = Frame3, Position = UDim2.new(0, 14, 0, 242), Size = UDim2.new(1, -28, 0, 70), BackgroundTransparency = 1, ZIndex = 52})
+            createUIElement("Frame", tbl29)
+            local TextLabel5 = createUIElement("TextLabel", {Parent = v29, Position = UDim2.new(0, 12, 0, 36), Size = UDim2.new(1, -24, 0, 94), BackgroundTransparency = 1, Font = HUD_THEME.FontBody, Text = "...", TextColor3 = HUD_THEME.TextPure, TextSize = 13.5, TextWrapped = true, RichText = true, TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, ZIndex = 53})
+            local Frame8 = createUIElement("Frame", {Parent = Frame3, Position = UDim2.new(0, 377, 0, 94), Size = UDim2.new(0, 209, 0, 140), BackgroundTransparency = 1, ZIndex = 52})
+            local v30 = createDashboardCard(Frame8, UDim2.new(0, 0, 0, 0), UDim2.new(1, 0, 0, 66), HUD_THEME.CrystalCyan)
+            createUIElement("ImageLabel", {Parent = v30, Position = UDim2.new(0, 10, 0, 7), Size = UDim2.new(0, 13, 0, 13), BackgroundTransparency = 1, Image = HUD_ICONS.Shield, ImageColor3 = HUD_THEME.CrystalCyan, ZIndex = 53})
+            createUIElement("TextLabel", {Parent = v30, Position = UDim2.new(0, 28, 0, 6), Size = UDim2.new(1, -38, 0, 14), BackgroundTransparency = 1, Font = HUD_THEME.FontTitle, Text = "AUXILIARY TASK", TextColor3 = HUD_THEME.CrystalCyan, TextSize = 10.5, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 53})
+            local TextLabel6 = createUIElement("TextLabel", {Parent = v30, Position = UDim2.new(0, 10, 0, 24), Size = UDim2.new(1, -20, 0, 36), BackgroundTransparency = 1, Font = HUD_THEME.FontBody, Text = "None", TextColor3 = HUD_THEME.TextSub, TextSize = 12.5, TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, ZIndex = 53})
+            local v31 = createDashboardCard(Frame8, UDim2.new(0, 0, 0, 74), UDim2.new(1, 0, 0, 66), HUD_THEME.EmeraldMint)
+            createUIElement("ImageLabel", {Parent = v31, Position = UDim2.new(0, 10, 0, 7), Size = UDim2.new(0, 13, 0, 13), BackgroundTransparency = 1, Image = HUD_ICONS.Cpu, ImageColor3 = HUD_THEME.EmeraldMint, ZIndex = 53})
+            createUIElement("TextLabel", {Parent = v31, Position = UDim2.new(0, 28, 0, 6), Size = UDim2.new(1, -38, 0, 14), BackgroundTransparency = 1, Font = HUD_THEME.FontTitle, Text = "ENGINE CONTROLLER", TextColor3 = HUD_THEME.EmeraldMint, TextSize = 10.5, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 53})
+            local TextLabel7 = createUIElement("TextLabel", {Parent = v31, Position = UDim2.new(0, 10, 0, 24), Size = UDim2.new(1, -20, 0, 36), BackgroundTransparency = 1, Font = HUD_THEME.FontBody, Text = "Idle", TextColor3 = HUD_THEME.TextSub, TextSize = 12.5, TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, ZIndex = 53})
+            local Frame9 = createUIElement("Frame", {Parent = Frame3, Position = UDim2.new(0, 14, 0, 242), Size = UDim2.new(1, -28, 0, 70), BackgroundTransparency = 1, ZIndex = 52})
 
-            local function fn31(arg2, arg3, arg4, arg5, arg6)
-              local v32 = fn30(Frame9, UDim2.new(0, arg2, 0, 0), UDim2.new(0, 180, 1, 0), arg3)
-              fn24("ImageLabel", {Parent = v32, Position = UDim2.new(0, 10, 0, 8), Size = UDim2.new(0, 13, 0, 13), BackgroundTransparency = 1, Image = arg4, ImageColor3 = arg3, ZIndex = 53})
-              fn24("TextLabel", {Parent = v32, Position = UDim2.new(0, 28, 0, 8), Size = UDim2.new(1, -38, 0, 14), BackgroundTransparency = 1, Font = tbl7.FontTitle, Text = arg5, TextColor3 = arg3, TextSize = 10.5, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 53})
-              return fn24("TextLabel", {Parent = v32, Position = UDim2.new(0, 12, 0, 24), Size = UDim2.new(1, -24, 0, 36), BackgroundTransparency = 1, Font = tbl7.FontNumbers, Text = arg6, TextColor3 = tbl7.TextPure, TextSize = 18, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 53})
+            local function createStatCard(arg2, arg3, arg4, arg5, arg6)
+              local v32 = createDashboardCard(Frame9, UDim2.new(0, arg2, 0, 0), UDim2.new(0, 180, 1, 0), arg3)
+              createUIElement("ImageLabel", {Parent = v32, Position = UDim2.new(0, 10, 0, 8), Size = UDim2.new(0, 13, 0, 13), BackgroundTransparency = 1, Image = arg4, ImageColor3 = arg3, ZIndex = 53})
+              createUIElement("TextLabel", {Parent = v32, Position = UDim2.new(0, 28, 0, 8), Size = UDim2.new(1, -38, 0, 14), BackgroundTransparency = 1, Font = HUD_THEME.FontTitle, Text = arg5, TextColor3 = arg3, TextSize = 10.5, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 53})
+              return createUIElement("TextLabel", {Parent = v32, Position = UDim2.new(0, 12, 0, 24), Size = UDim2.new(1, -24, 0, 36), BackgroundTransparency = 1, Font = HUD_THEME.FontNumbers, Text = arg6, TextColor3 = HUD_THEME.TextPure, TextSize = 18, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 53})
             end
 
-            local playerLevel = fn31(0, tbl7.EmeraldMint, tbl.Crown, "PLAYER LEVEL", "0")
-            local beliWealth = fn31(196, tbl7.AmberGold, tbl.Coins, "BELI WEALTH", "$ 0")
-            local fragments = fn31(392, tbl7.VividPurple, tbl.Gem, "FRAGMENTS", "0")
-            local v32 = fn30(Frame3, UDim2.new(0, 14, 0, 320), UDim2.new(1, -28, 0, 95), tbl7.VividPurple)
-            fn24("ImageLabel", {Parent = v32, Position = UDim2.new(0, 12, 0, 8), Size = UDim2.new(0, 14, 0, 14), BackgroundTransparency = 1, Image = tbl.Swords, ImageColor3 = tbl7.VividPurple, ZIndex = 53})
-            fn24("TextLabel", {Parent = v32, Position = UDim2.new(0, 32, 0, 8), Size = UDim2.new(1, -44, 0, 14), BackgroundTransparency = 1, Font = tbl7.FontTitle, Text = "COMBAT MASTERY / ARSENAL", TextColor3 = tbl7.VividPurple, TextSize = 11, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 53})
-            local TextLabel8 = fn24("TextLabel", {Parent = v32, Position = UDim2.new(0, 14, 0, 26), Size = UDim2.new(1, -28, 0, 62), BackgroundTransparency = 1, Font = tbl7.FontBody, Text = "Scanning melee data...", TextColor3 = tbl7.TextPure, TextSize = 16, TextWrapped = true, RichText = true, TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, ZIndex = 53})
+            local playerLevel = createStatCard(0, HUD_THEME.EmeraldMint, HUD_ICONS.Crown, "PLAYER LEVEL", "0")
+            local beliWealth = createStatCard(196, HUD_THEME.AmberGold, HUD_ICONS.Coins, "BELI WEALTH", "$ 0")
+            local fragments = createStatCard(392, HUD_THEME.VividPurple, HUD_ICONS.Gem, "FRAGMENTS", "0")
+            local v32 = createDashboardCard(Frame3, UDim2.new(0, 14, 0, 320), UDim2.new(1, -28, 0, 95), HUD_THEME.VividPurple)
+            createUIElement("ImageLabel", {Parent = v32, Position = UDim2.new(0, 12, 0, 8), Size = UDim2.new(0, 14, 0, 14), BackgroundTransparency = 1, Image = HUD_ICONS.Swords, ImageColor3 = HUD_THEME.VividPurple, ZIndex = 53})
+            createUIElement("TextLabel", {Parent = v32, Position = UDim2.new(0, 32, 0, 8), Size = UDim2.new(1, -44, 0, 14), BackgroundTransparency = 1, Font = HUD_THEME.FontTitle, Text = "COMBAT MASTERY / ARSENAL", TextColor3 = HUD_THEME.VividPurple, TextSize = 11, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 53})
+            local TextLabel8 = createUIElement("TextLabel", {Parent = v32, Position = UDim2.new(0, 14, 0, 26), Size = UDim2.new(1, -28, 0, 62), BackgroundTransparency = 1, Font = HUD_THEME.FontBody, Text = "Scanning melee data...", TextColor3 = HUD_THEME.TextPure, TextSize = 16, TextWrapped = true, RichText = true, TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, ZIndex = 53})
 
             for _, v33 in ipairs({v29, v30, v31, v32}) do
               v33.MouseEnter:Connect(function()
-                fn21(v33, {BackgroundTransparency = 0.28}, tbl7.Quick)
+                tweenUI(v33, {BackgroundTransparency = 0.28}, HUD_THEME.Quick)
               end)
 
               v33.MouseLeave:Connect(function()
-                fn21(v33, {BackgroundTransparency = 0.45}, tbl7.Quick)
+                tweenUI(v33, {BackgroundTransparency = 0.45}, HUD_THEME.Quick)
               end)
             end
 
@@ -1357,15 +1331,15 @@ if true then
             state.Labels.Currencies = {Lbl = playerLevel, Card = Frame9}
             state.Labels.Melees = {Lbl = TextLabel8, Card = v32}
             state.Labels.LiveTime = {Lbl = TextLabel3, Card = v28}
-            tbl8.Instances.Task1 = TextLabel5
-            tbl8.Instances.MainTextLabel = TextLabel5
-            tbl8.Instances.Task2 = TextLabel6
-            tbl8.Instances.DebugLine = TextLabel7
-            tbl8.Instances.Currencies = playerLevel
-            tbl8.Instances.Melees = TextLabel8
-            tbl8.Instances.LiveTime = TextLabel3
+            hudElements.Instances.Task1 = TextLabel5
+            hudElements.Instances.MainTextLabel = TextLabel5
+            hudElements.Instances.Task2 = TextLabel6
+            hudElements.Instances.DebugLine = TextLabel7
+            hudElements.Instances.Currencies = playerLevel
+            hudElements.Instances.Melees = TextLabel8
+            hudElements.Instances.LiveTime = TextLabel3
 
-            local function fn32(isOpen)
+            local function toggleDashboard(isOpen)
               state.IsOpen = isOpen
 
               if isOpen then
@@ -1378,30 +1352,30 @@ if true then
                 UICorner.CornerRadius = UDim.new(1, 0)
                 uiCorner.CornerRadius = UDim.new(1, 0)
                 uiCorner2.CornerRadius = UDim.new(1, 0)
-                fn21(ImageLabel, {Rotation = 180}, tbl7.SpringBouncy)
-                fn25(tbl7.ChampagneGold)
-                fn26()
-                fn21(Frame3, {Position = udim23, Size = UDim2.new(0, 600, 0, 440)}, tbl7.SpringExpand)
-                fn21(UICorner, {CornerRadius = UDim.new(0, 24)}, tbl7.SpringExpand)
-                fn21(Frame4.UICorner, {CornerRadius = UDim.new(0, 24)}, tbl7.SpringExpand)
-                fn21(Frame5.UICorner, {CornerRadius = UDim.new(0, 23)}, tbl7.SpringExpand)
-                fn21(BlurEffect, {Size = 24}, tbl7.Quick)
+                tweenUI(ImageLabel, {Rotation = 180}, HUD_THEME.SpringBouncy)
+                playPillPulse(HUD_THEME.ChampagneGold)
+                rotatePillGradient()
+                tweenUI(Frame3, {Position = udim23, Size = UDim2.new(0, 600, 0, 440)}, HUD_THEME.SpringExpand)
+                tweenUI(UICorner, {CornerRadius = UDim.new(0, 24)}, HUD_THEME.SpringExpand)
+                tweenUI(Frame4.UICorner, {CornerRadius = UDim.new(0, 24)}, HUD_THEME.SpringExpand)
+                tweenUI(Frame5.UICorner, {CornerRadius = UDim.new(0, 23)}, HUD_THEME.SpringExpand)
+                tweenUI(BlurEffect, {Size = 24}, HUD_THEME.Quick)
 
                 local function fn33()
                   local tbl30 = {Size = udim2}
-                  fn21(TextButton, tbl30, tbl7.SpringExpand)
+                  tweenUI(TextButton, tbl30, HUD_THEME.SpringExpand)
                 end
 
-                fn23(fn21(TextButton, {Size = UDim2.fromOffset(n4 + 18, n5 + 4)}, tbl7.Quick), nil, fn33)
+                onTweenCompleted(tweenUI(TextButton, {Size = UDim2.fromOffset(n4 + 18, n5 + 4)}, HUD_THEME.Quick), nil, fn33)
                 return
               end
 
-              fn21(ImageLabel, {Rotation = 0}, tbl7.SpringBouncy)
-              local v33 = fn21(Frame3, {Position = udim22, Size = udim2}, tbl7.SpringCollapse)
-              fn21(UICorner, {CornerRadius = UDim.new(1, 0)}, tbl7.SpringCollapse)
-              fn21(Frame4.UICorner, {CornerRadius = UDim.new(1, 0)}, tbl7.SpringCollapse)
-              fn21(Frame5.UICorner, {CornerRadius = UDim.new(1, 0)}, tbl7.SpringCollapse)
-              fn21(BlurEffect, {Size = 0}, tbl7.Quick)
+              tweenUI(ImageLabel, {Rotation = 0}, HUD_THEME.SpringBouncy)
+              local v33 = tweenUI(Frame3, {Position = udim22, Size = udim2}, HUD_THEME.SpringCollapse)
+              tweenUI(UICorner, {CornerRadius = UDim.new(1, 0)}, HUD_THEME.SpringCollapse)
+              tweenUI(Frame4.UICorner, {CornerRadius = UDim.new(1, 0)}, HUD_THEME.SpringCollapse)
+              tweenUI(Frame5.UICorner, {CornerRadius = UDim.new(1, 0)}, HUD_THEME.SpringCollapse)
+              tweenUI(BlurEffect, {Size = 0}, HUD_THEME.Quick)
 
               local function fn33()
                 if state.IsOpen then
@@ -1409,15 +1383,15 @@ if true then
                 end
                 Frame3.Visible = false
 
-                fn23(fn21(TextButton, {Size = UDim2.fromOffset(n4 + 22, n5 + 4)}, tbl7.Quick), nil, function()
-                  fn21(TextButton, {Size = udim2}, tbl7.SpringExpand)
+                onTweenCompleted(tweenUI(TextButton, {Size = UDim2.fromOffset(n4 + 22, n5 + 4)}, HUD_THEME.Quick), nil, function()
+                  tweenUI(TextButton, {Size = udim2}, HUD_THEME.SpringExpand)
                 end)
 
-                fn25(tbl7.EmeraldMint)
-                fn26()
+                playPillPulse(HUD_THEME.EmeraldMint)
+                rotatePillGradient()
               end
 
-              fn23(v33, nil, fn33)
+              onTweenCompleted(v33, nil, fn33)
             end
 
             local function toggleUI(arg2)
@@ -1430,27 +1404,27 @@ if true then
                 end
               end
 
-              fn32(arg2)
+              toggleDashboard(arg2)
             end
 
             TextButton.MouseButton1Down:Connect(function()
-              fn21(TextButton, {Size = UDim2.fromOffset(n4 - 14, n5 - 4)}, tbl7.Quick)
+              tweenUI(TextButton, {Size = UDim2.fromOffset(n4 - 14, n5 - 4)}, HUD_THEME.Quick)
             end)
 
             TextButton.MouseButton1Click:Connect(function()
-              fn21(TextButton, {Size = udim2}, tbl7.SpringBouncy)
+              tweenUI(TextButton, {Size = udim2}, HUD_THEME.SpringBouncy)
               toggleUI()
             end)
 
             TextButton.MouseEnter:Connect(function()
-              fn21(TextButton, {Size = UDim2.fromOffset(n4 + 14, n5 + 2)}, tbl7.SpringBouncy)
-              fn21(ImageLabel, {Position = UDim2.new(1, -10, 0.5, 2)}, tbl7.Quick)
-              fn26()
+              tweenUI(TextButton, {Size = UDim2.fromOffset(n4 + 14, n5 + 2)}, HUD_THEME.SpringBouncy)
+              tweenUI(ImageLabel, {Position = UDim2.new(1, -10, 0.5, 2)}, HUD_THEME.Quick)
+              rotatePillGradient()
             end)
 
             TextButton.MouseLeave:Connect(function()
-              fn21(TextButton, {Size = udim2}, tbl7.SpringBouncy)
-              fn21(ImageLabel, {Position = UDim2.new(1, -10, 0.5, 0)}, tbl7.Quick)
+              tweenUI(TextButton, {Size = udim2}, HUD_THEME.SpringBouncy)
+              tweenUI(ImageLabel, {Position = UDim2.new(1, -10, 0.5, 0)}, HUD_THEME.Quick)
             end)
 
             TextButton2.MouseButton1Click:Connect(function()
@@ -1471,8 +1445,8 @@ if true then
               end
             end)
 
-            local function fn33(arg2, arg3)
-              local v33 = tbl8.Instances[arg2]
+            local function setLabelText(arg2, arg3)
+              local v33 = hudElements.Instances[arg2]
 
               if v33 then
                 if v33.Text ~= tostring(arg3 or "n/a") then
@@ -1483,7 +1457,7 @@ if true then
               end
             end
 
-            local function fn34(arg2)
+            local function getPlayerDataValue(arg2)
               local value
 
               pcall(function()
@@ -1573,27 +1547,27 @@ if true then
                 end
               end
 
-              fn33("LiveTime", "Session: " .. (str4 .. (" | Total: " .. str5)))
-              playerLevel.Text = fn19(fn34("Level") or 0)
-              beliWealth.Text = "$ " .. fn19(fn34("Beli") or 0)
-              fragments.Text = fn19(fn34("Fragments") or 0)
+              setLabelText("LiveTime", "Session: " .. (str4 .. (" | Total: " .. str5)))
+              playerLevel.Text = formatNumberWithCommas(getPlayerDataValue("Level") or 0)
+              beliWealth.Text = "$ " .. formatNumberWithCommas(getPlayerDataValue("Beli") or 0)
+              fragments.Text = formatNumberWithCommas(getPlayerDataValue("Fragments") or 0)
 
-              if (Config["Buy Haki"] and Config["Buy Haki"].Skyjump) and (not hasBoughtSkyjump) and (tonumber(fn34("Beli") or 0) >= 10000) then
+              if (Config["Buy Haki"] and Config["Buy Haki"].Skyjump) and (not hasBoughtSkyjump) and (tonumber(getPlayerDataValue("Beli") or 0) >= 10000) then
                 local buyresult = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BuyHaki", "Geppo")
                 if (buyresult == 1) or (buyresult == 2) then hasBoughtSkyjump = true end
               end
 
-              if (Config["Buy Haki"] and Config["Buy Haki"].Buso) and (not hasBoughtBuso) and (tonumber(fn34("Beli") or 0) >= 25000) then
+              if (Config["Buy Haki"] and Config["Buy Haki"].Buso) and (not hasBoughtBuso) and (tonumber(getPlayerDataValue("Beli") or 0) >= 25000) then
                 local buyresult = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BuyHaki", "Buso")
                 if (buyresult == 1) or (buyresult == 2) then hasBoughtBuso = true end
               end
 
-              if (Config["Buy Haki"] and Config["Buy Haki"].Soru) and (not hasBoughtSoru) and (tonumber(fn34("Beli") or 0) >= 100000) then
+              if (Config["Buy Haki"] and Config["Buy Haki"].Soru) and (not hasBoughtSoru) and (tonumber(getPlayerDataValue("Beli") or 0) >= 100000) then
                 local buyresult = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BuyHaki", "Soru")
                 if (buyresult == 1) or (buyresult == 2) then hasBoughtSoru = true end
               end
 
-              if (Config["Buy Haki"] and Config["Buy Haki"].Observation) and (not hasBoughtObservation) and (tonumber(fn34("Beli") or 0) >= 750000) then
+              if (Config["Buy Haki"] and Config["Buy Haki"].Observation) and (not hasBoughtObservation) and (tonumber(getPlayerDataValue("Beli") or 0) >= 750000) then
                 local buyresult = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("KenTalk", "Buy")
                 if (buyresult == 1) or (buyresult == 2) then hasBoughtObservation = true end
               end
@@ -1608,88 +1582,88 @@ if true then
                   end
                 end
 
-                fn33("Task1", str6)
-                fn33("Task2", tostring(task_.SideTask or "None"))
+                setLabelText("Task1", str6)
+                setLabelText("Task2", tostring(task_.SideTask or "None"))
                 local str7 = tostring(task_.MainTask or "Active")
                 local str8 = str7:lower()
-                local emeraldMint = tbl7.EmeraldMint
+                local emeraldMint = HUD_THEME.EmeraldMint
 
                 if str8:find("error") then
-                  emeraldMint = tbl7.ErrorRed
+                  emeraldMint = HUD_THEME.ErrorRed
                 elseif str8:find("loi") then
-                  emeraldMint = tbl7.ErrorRed
+                  emeraldMint = HUD_THEME.ErrorRed
                 elseif str8:find("fail") then
-                  emeraldMint = tbl7.ErrorRed
+                  emeraldMint = HUD_THEME.ErrorRed
                 elseif str8:find("danger") then
-                  emeraldMint = tbl7.ErrorRed
+                  emeraldMint = HUD_THEME.ErrorRed
                 elseif str8:find("die") then
-                  emeraldMint = tbl7.ErrorRed
+                  emeraldMint = HUD_THEME.ErrorRed
                 elseif str8:find("raid") then
-                  emeraldMint = tbl7.VividPurple
+                  emeraldMint = HUD_THEME.VividPurple
                 elseif str8:find("boss") then
-                  emeraldMint = tbl7.VividPurple
+                  emeraldMint = HUD_THEME.VividPurple
                 elseif str8:find("mirage") then
-                  emeraldMint = tbl7.VividPurple
+                  emeraldMint = HUD_THEME.VividPurple
                 elseif str8:find("kitsune") then
-                  emeraldMint = tbl7.VividPurple
+                  emeraldMint = HUD_THEME.VividPurple
                 elseif str8:find("v4") then
-                  emeraldMint = tbl7.VividPurple
+                  emeraldMint = HUD_THEME.VividPurple
                 elseif str8:find("hop") then
-                  emeraldMint = tbl7.AmberGold
+                  emeraldMint = HUD_THEME.AmberGold
                 elseif str8:find("wait") then
-                  emeraldMint = tbl7.AmberGold
+                  emeraldMint = HUD_THEME.AmberGold
                 elseif str8:find("server") then
-                  emeraldMint = tbl7.AmberGold
+                  emeraldMint = HUD_THEME.AmberGold
                 elseif str8:find("loading") then
-                  emeraldMint = tbl7.AmberGold
+                  emeraldMint = HUD_THEME.AmberGold
                 end
 
-                fn27(str7, emeraldMint)
+                setIslandTask(str7, emeraldMint)
                 local stroke = v29:FindFirstChild("Stroke")
 
                 if stroke then
                   local errorRed
 
                   if str8:find("error") then
-                    errorRed = tbl7.ErrorRed
+                    errorRed = HUD_THEME.ErrorRed
 
                     if not errorRed then
                       if str8:find("waiting") then
-                        errorRed = tbl7.AmberGold or Color3.new(1, 1, 1)
+                        errorRed = HUD_THEME.AmberGold or Color3.new(1, 1, 1)
                       elseif str8:find("loading") then
-                        errorRed = tbl7.AmberGold or Color3.new(1, 1, 1)
+                        errorRed = HUD_THEME.AmberGold or Color3.new(1, 1, 1)
                       else
                         errorRed = Color3.new(1, 1, 1)
                       end
                     end
                   elseif str8:find("loi") then
-                    errorRed = tbl7.ErrorRed
+                    errorRed = HUD_THEME.ErrorRed
 
                     if not errorRed then
                       if str8:find("waiting") then
-                        errorRed = tbl7.AmberGold or Color3.new(1, 1, 1)
+                        errorRed = HUD_THEME.AmberGold or Color3.new(1, 1, 1)
                       elseif str8:find("loading") then
-                        errorRed = tbl7.AmberGold or Color3.new(1, 1, 1)
+                        errorRed = HUD_THEME.AmberGold or Color3.new(1, 1, 1)
                       else
                         errorRed = Color3.new(1, 1, 1)
                       end
                     end
                   elseif str8:find("fail") then
-                    errorRed = tbl7.ErrorRed
+                    errorRed = HUD_THEME.ErrorRed
 
                     if not errorRed then
                       if str8:find("waiting") then
-                        errorRed = tbl7.AmberGold or Color3.new(1, 1, 1)
+                        errorRed = HUD_THEME.AmberGold or Color3.new(1, 1, 1)
                       elseif str8:find("loading") then
-                        errorRed = tbl7.AmberGold or Color3.new(1, 1, 1)
+                        errorRed = HUD_THEME.AmberGold or Color3.new(1, 1, 1)
                       else
                         errorRed = Color3.new(1, 1, 1)
                       end
                     end
                   elseif str8:find("waiting") then
-                    errorRed = tbl7.AmberGold or Color3.new(1, 1, 1)
+                    errorRed = HUD_THEME.AmberGold or Color3.new(1, 1, 1)
                   elseif str8:find("loading") then
-                    errorRed = tbl7.AmberGold or Color3.new(1, 1, 1)
+                    errorRed = HUD_THEME.AmberGold or Color3.new(1, 1, 1)
                   else
                     errorRed = Color3.new(1, 1, 1)
                   end
@@ -1708,7 +1682,7 @@ if true then
 
                 if v33 then
                   if v33 ~= "" then
-                    fn33("Melees", tostring(v33))
+                    setLabelText("Melees", tostring(v33))
                   end
                 end
 
@@ -1736,7 +1710,7 @@ if true then
               end
 
               if v34 and ((v34 ~= "") and (v34 ~= "n/a")) then
-                fn33(v33, v34)
+                setLabelText(v33, v34)
 
                 if v33 ~= "Task1" then
                   if v33 ~= "MainTextLabel" then
@@ -1751,22 +1725,22 @@ if true then
                 end
 
                 str5 = tostring(v34):lower()
-                emeraldMint = tbl7.EmeraldMint
+                emeraldMint = HUD_THEME.EmeraldMint
 
                 if str5:find("error") or (str5:find("loi") or (str5:find("fail") or (str5:find("danger") or str5:find("die")))) then
-                  emeraldMint = tbl7.ErrorRed
+                  emeraldMint = HUD_THEME.ErrorRed
                 elseif str5:find("raid") or (str5:find("boss") or (str5:find("mirage") or (str5:find("kitsune") or str5:find("v4")))) then
-                  emeraldMint = tbl7.VividPurple
+                  emeraldMint = HUD_THEME.VividPurple
                 elseif str5:find("hop") or (str5:find("wait") or (str5:find("server") or str5:find("loading"))) then
-                  emeraldMint = tbl7.AmberGold
+                  emeraldMint = HUD_THEME.AmberGold
                 end
 
-                fn27(match, emeraldMint)
+                setIslandTask(match, emeraldMint)
                 stroke = v29:FindFirstChild("Stroke")
 
                 if stroke then
                   if str5:find("error") or (str5:find("loi") or str5:find("fail")) then
-                    v35 = tbl7
+                    v35 = HUD_THEME
 
                     if v35 then
                       errorRed = v35.ErrorRed
@@ -1778,7 +1752,7 @@ if true then
                   end
 
                   if str5:find("waiting") or str5:find("loading") then
-                    errorRed = tbl7.AmberGold
+                    errorRed = HUD_THEME.AmberGold
                     if errorRed then
                       stroke.Color = errorRed
                       return
@@ -1795,18 +1769,18 @@ if true then
               return
             end
 
-            fn32(true)
-            tbl8.SetText = setText
-            tbl8.SyncRuntimeUI = syncRuntimeUI
-            tbl8.ToggleUI = toggleUI
-            tbl8.ToggleInterface = toggleUI
-            tbl8.BlurManager = {}
-            tbl8.State = state
-            tbl8.GUI = ScreenGui
-            return tbl8
+            toggleDashboard(true)
+            hudElements.SetText = setText
+            hudElements.SyncRuntimeUI = syncRuntimeUI
+            hudElements.ToggleUI = toggleUI
+            hudElements.ToggleInterface = toggleUI
+            hudElements.BlurManager = {}
+            hudElements.State = state
+            hudElements.GUI = ScreenGui
+            return hudElements
           end
 
-          local function fn21()
+          local function startKaitunBot()
             local lastIdleTick, runtimeUI, fn22, ItemReplicationService, fn23, submergedWaitTick, canUseBypass, checkBypassCond, getBypassSpawn, v15
             local cframe, n4, cframe2, questAllowMap, questNameOverrides, normQuestName, matchQuestTitle, stripQuestSpaces, resetCurrentQuest, QuestController
 
@@ -1828,7 +1802,7 @@ if true then
               end
 
               OldSessionTime = n5
-              runtimeUI = fn20({StartTime = now3, OldSessionTime = OldSessionTime})
+              runtimeUI = createDashboardUI({StartTime = now3, OldSessionTime = OldSessionTime})
               while not game.Players.LocalPlayer.Character do
                 task.wait(0.1)
               end
@@ -1927,7 +1901,7 @@ if true then
                     end)
                   end
 
-                  local function fn30(arg)
+                  local function isCharacterOrHumanoidAncestor(arg)
                     local model = arg:FindFirstAncestorWhichIsA("Model")
 
                     if model then
@@ -1949,7 +1923,7 @@ if true then
                     return model
                   end
 
-                  local function fn31(arg)
+                  local function isDescendantOfAnyPlayer(arg)
                     local players, v16 = obj.Players:GetPlayers()
 
                     for _, v17 in next, players, v16 do
@@ -1963,7 +1937,7 @@ if true then
                     return false
                   end
 
-                  local function fn32(arg)
+                  local function optimizeWorkspaceInstance(arg)
                     if arg then
                       if arg.Parent then
                         pcall(function()
@@ -1988,7 +1962,7 @@ if true then
                                               return
                                             end
 
-                                            if fn31(arg) then
+                                            if isDescendantOfAnyPlayer(arg) then
                                               return
                                             end
 
@@ -2076,7 +2050,7 @@ if true then
                                                     if not arg:FindFirstAncestor("FX") then
                                                       if not arg:FindFirstAncestor("Effects") then
                                                         if not arg:FindFirstAncestor("Debris") then
-                                                          if fn30(arg) then
+                                                          if isCharacterOrHumanoidAncestor(arg) then
                                                             return
                                                           end
 
@@ -2132,7 +2106,7 @@ if true then
                     local descendants = workspace:GetDescendants()
 
                     for i = 1, #descendants do
-                      fn32(descendants[i])
+                      optimizeWorkspaceInstance(descendants[i])
 
                       if (i % 300) == 0 then
                         task.wait()
@@ -2183,7 +2157,7 @@ if true then
                   end
 
                   _G.FPSBConn = workspace.DescendantAdded:Connect(function(descendant)
-                    task.defer(fn32, descendant)
+                    task.defer(optimizeWorkspaceInstance, descendant)
                   end)
                 end
               end
@@ -2312,7 +2286,7 @@ if true then
                 return npCs
               end})
 
-              local function fn30(arg, arg2)
+              local function addTracebackLog(arg, arg2)
                 local v16 = DispTime
                 table.insert(ScriptStorage.Tracebacks, GetCurrentDateTime() .. (" ( " .. (v16(os.time() - now3, true) .. (" ) after execution | " .. (arg .. (" | " .. arg2))))))
                 if #ScriptStorage.Tracebacks > 30 then
@@ -2321,7 +2295,7 @@ if true then
                 end
               end
 
-              CreateTraceback = fn30
+              CreateTraceback = addTracebackLog
 
               task.spawn(function()
                 while task.wait(60) do
@@ -2525,7 +2499,7 @@ if true then
                 end
               end
 
-              local function fn31(arg)
+              local function syncPlayerDataValue(arg)
                 if arg then
                   if arg:IsA("ValueBase") then
                     ScriptStorage.PlayerData[arg.Name] = arg.Value
@@ -2544,10 +2518,10 @@ if true then
                 end
               end
 
-              fn22 = function(child)
+              bindPlayerDataChild = function(child)
                 if child then
                   if child:IsA("ValueBase") then
-                    fn31(child)
+                    syncPlayerDataValue(child)
                     local str4 = "Data_" .. child.Name
 
                     if ScriptStorage.Connections.LocalPlayer[str4] then
@@ -2557,7 +2531,7 @@ if true then
                     end
 
                     ScriptStorage.Connections.LocalPlayer[str4] = child.Changed:Connect(function()
-                      fn31(child)
+                      syncPlayerDataValue(child)
                     end)
 
                     return
@@ -2565,7 +2539,7 @@ if true then
                 end
               end
 
-              local function fn32()
+              local function refreshRaceLevel()
                 ScriptStorage.PlayerData.RaceLevel = 1
                 if LocalPlayer.Character:FindFirstChild("RaceTransformed") then
                   ScriptStorage.PlayerData.RaceLevel = 4
@@ -2573,7 +2547,7 @@ if true then
                 end
               end
 
-              RefreshRace = fn32
+              RefreshRace = refreshRaceLevel
               local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
               if pcall(function()
@@ -2917,7 +2891,7 @@ if true then
                 ResearchMoves(PlayerGui.Main.Skills:WaitForChild(arg.Name, 9):WaitForChild("V"))
               end
 
-              local function fn34(arg)
+              local function getNonFruitItemId(arg)
                 if ItemId then
                   local ok, result = pcall(function()
                     return ItemId.getId(arg, "NonFruitItem"):unwrap()
@@ -2935,9 +2909,9 @@ if true then
                 return nil
               end
 
-              local function fn35(arg)
+              local function getItemMasteryAndOwnership(arg)
                 if ItemReplicationService then
-                  local v16 = fn34(arg)
+                  local v16 = getNonFruitItemId(arg)
 
                   if v16 then
                     local n7 = tonumber(ItemReplicationService:ReadItem(ItemReplicationService.KEYS.MASTERY, v16)) or 0
@@ -2987,7 +2961,7 @@ if true then
               LoadMeleeData = function()
                 if MeleesTable then
                   for _, v16 in ipairs(MeleesTable) do
-                    local v17, v18 = fn35(v16)
+                    local v17, v18 = getItemMasteryAndOwnership(v16)
 
                     if v18 or (v17 > 0) then
                       local v19 = (NormalizeMeleeName and NormalizeMeleeName(v16)) or v16
@@ -3257,281 +3231,67 @@ if true then
               end
 
               SyncLiveMeleeTools = function()
-                local tbl10 = {LocalPlayer.Character, LocalPlayer.Backpack}
-                local flag6 = false
-                local flag7 = false
+                local toolContainers = {LocalPlayer.Character, LocalPlayer.Backpack}
+                local hasScannedAny = false
+                local hasChanged = false
 
-                for _, v16 in ipairs(tbl10) do
-                  if v16 then
-                    for _, child in ipairs(v16:GetChildren()) do
-                      if child:IsA("Tool") then
-                        if child.ToolTip == "Melee" then
-                          local v17 = NormalizeMeleeName(child.Name)
-                          local level = child:FindFirstChild("Level")
-                          local n7
+                for _, container in ipairs(toolContainers) do
+                  if container then
+                    for _, child in ipairs(container:GetChildren()) do
+                      if child:IsA("Tool") and child.ToolTip == "Melee" then
+                        local meleeName = NormalizeMeleeName(child.Name)
+                        local levelObj = child:FindFirstChild("Level")
+                        local currentMastery = 0
 
-                          if level then
-                            n7 = (tonumber(level.Value) or tonumber(ScriptStorage.Melees[v17])) or 0
-                          else
-                            n7 = tonumber(ScriptStorage.Melees[v17]) or 0
-                          end
+                        if levelObj then
+                          currentMastery = tonumber(levelObj.Value) or tonumber(ScriptStorage.Melees[meleeName]) or 0
+                        else
+                          currentMastery = tonumber(ScriptStorage.Melees[meleeName]) or 0
+                        end
 
-                          if (tonumber(ScriptStorage.Melees[v17]) or 0) ~= n7 then
-                            ScriptStorage.Melees[v17] = n7
-                            ScriptStorage.MeleesOwned[v17] = true
-                            flag7 = true
-                          elseif not ScriptStorage.MeleesOwned[v17] then
-                            ScriptStorage.Melees[v17] = n7
-                            ScriptStorage.MeleesOwned[v17] = true
-                            flag7 = true
-                          end
+                        if (tonumber(ScriptStorage.Melees[meleeName]) or 0) ~= currentMastery or not ScriptStorage.MeleesOwned[meleeName] then
+                          ScriptStorage.Melees[meleeName] = currentMastery
+                          ScriptStorage.MeleesOwned[meleeName] = true
+                          hasChanged = true
                         end
                       end
                     end
-
-                    flag6 = true
+                    hasScannedAny = true
                   end
                 end
 
                 if MeleesTable then
-                  local v16
-
-                  for _, v17 in ipairs(MeleesTable) do
-                    local v18, v19 = fn35(v17)
-
-                    if not v19 then
-                      local n7, melees, max, n8
-
-                      if v18 > 0 then
-                        if NormalizeMeleeName then
-                          v16 = NormalizeMeleeName(v17)
-
-                          if v16 then
-                            n7 = tonumber(ScriptStorage.Melees[v16]) or 0
-
-                            if (n7 < v18) or not ScriptStorage.MeleesOwned[v16] then
-                              melees = ScriptStorage.Melees
-                              max = math.max
-                              n8 = tonumber(ScriptStorage.Melees[v16]) or 0
-                              melees[v16] = max(n8, v18)
-                              ScriptStorage.MeleesOwned[v16] = true
-                              flag7 = true
-                            end
-                          else
-                            v16 = v17
-                            n7 = tonumber(ScriptStorage.Melees[v16]) or 0
-
-                            if (n7 < v18) or not ScriptStorage.MeleesOwned[v16] then
-                              melees = ScriptStorage.Melees
-                              max = math.max
-                              n8 = tonumber(ScriptStorage.Melees[v16]) or 0
-                              melees[v16] = max(n8, v18)
-                              ScriptStorage.MeleesOwned[v16] = true
-                              flag7 = true
-                            end
-                          end
-                        else
-                          v16 = v17
-                          n7 = tonumber(ScriptStorage.Melees[v16]) or 0
-
-                          if (n7 < v18) or not ScriptStorage.MeleesOwned[v16] then
-                            melees = ScriptStorage.Melees
-                            max = math.max
-                            n8 = tonumber(ScriptStorage.Melees[v16]) or 0
-                            melees[v16] = max(n8, v18)
-                            ScriptStorage.MeleesOwned[v16] = true
-                            flag7 = true
-                          end
-                        end
+                  for _, meleeRaw in ipairs(MeleesTable) do
+                    local mastery, isOwned = getItemMasteryAndOwnership(meleeRaw)
+                    if not isOwned and mastery > 0 then
+                      local normalized = (NormalizeMeleeName and NormalizeMeleeName(meleeRaw)) or meleeRaw
+                      local currentVal = tonumber(ScriptStorage.Melees[normalized]) or 0
+                      if currentVal < mastery or not ScriptStorage.MeleesOwned[normalized] then
+                        ScriptStorage.Melees[normalized] = math.max(currentVal, mastery)
+                        ScriptStorage.MeleesOwned[normalized] = true
+                        hasChanged = true
                       end
                     end
                   end
+                end
 
-                  if flag6 then
-                    ScriptStorage.MeleesLiveScanDone = true
-
-                    if flag7 then
-                      pcall(ApplyMeleeDerivedProgress)
-
-                      if MeleeBuyRefreshCache then
-                        MeleeBuyRefreshCache.CheckedAt = 0
-                        MeleeBuyRefreshCache.Result = nil
-                      end
-
-                      RefreshMelees()
-
-                      if ScriptStorage.Interface then
-                        if ScriptStorage.Interface.SyncRuntimeUI then
-                          pcall(ScriptStorage.Interface.SyncRuntimeUI)
-                          return flag7
-                        end
-                      end
-                    end
-                  elseif flag7 then
-                    pcall(ApplyMeleeDerivedProgress)
-
-                    if MeleeBuyRefreshCache then
-                      MeleeBuyRefreshCache.CheckedAt = 0
-                      MeleeBuyRefreshCache.Result = nil
-                    end
-
-                    RefreshMelees()
-
-                    if ScriptStorage.Interface then
-                      if ScriptStorage.Interface.SyncRuntimeUI then
-                        pcall(ScriptStorage.Interface.SyncRuntimeUI)
-                        return flag7
-                      end
-                    end
-                  end
-                elseif flag6 then
+                if hasScannedAny then
                   ScriptStorage.MeleesLiveScanDone = true
+                end
 
-                  if flag7 then
-                    pcall(ApplyMeleeDerivedProgress)
-
-                    if MeleeBuyRefreshCache then
-                      MeleeBuyRefreshCache.CheckedAt = 0
-                      MeleeBuyRefreshCache.Result = nil
-                    end
-
-                    RefreshMelees()
-
-                    if ScriptStorage.Interface then
-                      if ScriptStorage.Interface.SyncRuntimeUI then
-                        pcall(ScriptStorage.Interface.SyncRuntimeUI)
-                        return flag7
-                      end
-                    end
-                  end
-                elseif flag7 then
+                if hasChanged then
                   pcall(ApplyMeleeDerivedProgress)
-
                   if MeleeBuyRefreshCache then
                     MeleeBuyRefreshCache.CheckedAt = 0
                     MeleeBuyRefreshCache.Result = nil
                   end
-
                   RefreshMelees()
-
-                  if ScriptStorage.Interface then
-                    if ScriptStorage.Interface.SyncRuntimeUI then
-                      pcall(ScriptStorage.Interface.SyncRuntimeUI)
-                      return flag7
-                    end
+                  if ScriptStorage.Interface and ScriptStorage.Interface.SyncRuntimeUI then
+                    pcall(ScriptStorage.Interface.SyncRuntimeUI)
                   end
                 end
 
-                return flag7
-              end
-
-              LoadMeleeData()
-              RefreshMelees()
-              SetTask("MainTask", "Refreshing Player Data")
-              MeleeCheck(LocalPlayer.Character:FindFirstChildOfClass("Tool"))
-              SyncLiveMeleeTools()
-              RefreshPlayerData()
-
-              RegisterLocalPlayerEventsConnection = function()
-                for _, v16 in ipairs(LocalPlayerEventsConnections or {}) do
-                  pcall(function()
-                    v16:Disconnect()
-                  end)
-                end
-
-                AwaitUntilPlayerLoaded(LocalPlayer)
-                LocalPlayer:SetAttribute("IsAvailable", true)
-                local data = LocalPlayer:FindFirstChild("Data")
-
-                if data then
-                  for _, v16 in data:GetChildren() do
-                    fn22(v16)
-                  end
-
-                  ScriptStorage.Connections.LocalPlayer.DataChildAdded = data.ChildAdded:Connect(fn22)
-                end
-
-                local function fn36()
-                  local health = LocalPlayer.Character.Humanoid.Health
-                  LocalPlayer:SetAttribute("IsAvailable", health > 10)
-                  ScriptStorage.LocalPlayerHealth = health
-                end
-
-                ScriptStorage.Connections.LocalPlayer.HealthCheck = LocalPlayer.Character:WaitForChild("Humanoid"):GetPropertyChangedSignal("Health"):Connect(fn36)
-                ScriptStorage.Connections.LocalPlayer.Melee = LocalPlayer.Character.ChildAdded:Connect(MeleeCheck)
-                ScriptStorage.Connections.LocalPlayer.Fruit = LocalPlayer.Backpack.ChildAdded:Connect(MeleeCheck)
-
-                local function fn37(arg, arg2)
-                  MeleeCheck(arg2)
-                end
-
-                table.foreach(LocalPlayer.Backpack:GetChildren(), fn37)
-                LastIdleCheck = os.time()
-
-                ScriptStorage.Connections.LocalPlayer.PositionChecker = LocalPlayer.Character.HumanoidRootPart:GetPropertyChangedSignal("CFrame"):Connect(function()
-                  local v16 = LastIdleCheck
-
-                  if os.time() ~= v16 then
-                    LastIdleCheck = os.time()
-
-                    if oldPos then
-                      if (LocalPlayer.Character.HumanoidRootPart.CFrame.p - oldPos).magnitude < 2 then
-                        return
-                      end
-                    end
-
-                    oldPos = LocalPlayer.Character.HumanoidRootPart.CFrame.p
-                    lastIdleTick = os.time()
-                    return
-                  end
-                end)
-
-                local points = LocalPlayer.Data:WaitForChild("Points")
-
-                local function fn38()
-                  local value = points.Value
-
-                  if OldPointValue ~= value then
-                    if value <= 0 then
-                      return
-                    end
-                    OldPointValue = value
-                    AddPoint()
-                    return
-                  end
-                end
-
-                ScriptStorage.Connections.LocalPlayer.PointConnection = points:GetPropertyChangedSignal("Value"):Connect(fn38)
-              end
-
-              RegisterLocalPlayerEventsConnection(LocalPlayer)
-
-              game.Players.LocalPlayer.CharacterAdded:Connect(function()
-                RegisterLocalPlayerEventsConnection(LocalPlayer)
-              end)
-
-              task.spawn(function()
-                while true do
-                  local character = LocalPlayer.Character
-
-                  if character then
-                    if not character:FindFirstChild("HasBuso") then
-                      pcall(function()
-                        Remotes.CommF_:InvokeServer("Buso")
-                      end)
-                    end
-                  end
-
-                  task.wait(2)
-                end
-              end)
-
-              submergedWaitTick = 0
-              canUseBypass = false
-
-              checkBypassCond = function()
-                submergedWaitTick = 0
-                canUseBypass = false
+                return hasChanged
               end
 
               HasLightningBolt = function(arg)
@@ -3629,403 +3389,39 @@ if true then
                 return canUseBypass
               end
 
-              IsMeleePurchaseComplete = function(arg)
-                local n7 = tonumber((ScriptStorage and ScriptStorage.Melees) and ScriptStorage.Melees[arg]) or 0
-                local flag6, v16, character
+              IsMeleePurchaseComplete = function(meleeName)
+                if not meleeName then
+                  return false
+                end
 
                 if ScriptStorage then
-                  if ScriptStorage.MeleesOwned then
-                    flag6 = ScriptStorage.MeleesOwned[arg]
-
-                    if not flag6 then
-                      flag6 = n7 > 0
-
-                      if not flag6 then
-                        if ScriptStorage then
-                          if ScriptStorage.Tools then
-                            flag6 = ScriptStorage.Tools[arg]
-
-                            if not flag6 then
-                              if LocalPlayer then
-                                v16 = LocalPlayer
-
-                                if v16:FindFirstChild("Backpack") then
-                                  flag6 = LocalPlayer.Backpack:FindFirstChild(arg)
-
-                                  if not flag6 then
-                                    flag6 = LocalPlayer
-
-                                    if flag6 then
-                                      flag6 = LocalPlayer.Character
-                                      if flag6 then
-                                        character = LocalPlayer.Character
-                                        return (character:FindFirstChild(arg))
-                                      end
-                                    end
-                                  end
-                                else
-                                  flag6 = LocalPlayer
-
-                                  if flag6 then
-                                    flag6 = LocalPlayer.Character
-                                    if flag6 then
-                                      character = LocalPlayer.Character
-                                      return (character:FindFirstChild(arg))
-                                    end
-                                  end
-                                end
-                              else
-                                flag6 = LocalPlayer
-
-                                if flag6 then
-                                  flag6 = LocalPlayer.Character
-                                  if flag6 then
-                                    character = LocalPlayer.Character
-                                    return (character:FindFirstChild(arg))
-                                  end
-                                end
-                              end
-                            end
-                          elseif LocalPlayer then
-                            v16 = LocalPlayer
-
-                            if v16:FindFirstChild("Backpack") then
-                              flag6 = LocalPlayer.Backpack:FindFirstChild(arg)
-
-                              if not flag6 then
-                                flag6 = LocalPlayer
-
-                                if flag6 then
-                                  flag6 = LocalPlayer.Character
-                                  if flag6 then
-                                    character = LocalPlayer.Character
-                                    return (character:FindFirstChild(arg))
-                                  end
-                                end
-                              end
-                            else
-                              flag6 = LocalPlayer
-
-                              if flag6 then
-                                flag6 = LocalPlayer.Character
-                                if flag6 then
-                                  character = LocalPlayer.Character
-                                  return (character:FindFirstChild(arg))
-                                end
-                              end
-                            end
-                          else
-                            flag6 = LocalPlayer
-
-                            if flag6 then
-                              flag6 = LocalPlayer.Character
-                              if flag6 then
-                                character = LocalPlayer.Character
-                                return (character:FindFirstChild(arg))
-                              end
-                            end
-                          end
-                        elseif LocalPlayer then
-                          v16 = LocalPlayer
-
-                          if v16:FindFirstChild("Backpack") then
-                            flag6 = LocalPlayer.Backpack:FindFirstChild(arg)
-
-                            if not flag6 then
-                              flag6 = LocalPlayer
-
-                              if flag6 then
-                                flag6 = LocalPlayer.Character
-                                if flag6 then
-                                  character = LocalPlayer.Character
-                                  return (character:FindFirstChild(arg))
-                                end
-                              end
-                            end
-                          else
-                            flag6 = LocalPlayer
-
-                            if flag6 then
-                              flag6 = LocalPlayer.Character
-                              if flag6 then
-                                character = LocalPlayer.Character
-                                return (character:FindFirstChild(arg))
-                              end
-                            end
-                          end
-                        else
-                          flag6 = LocalPlayer
-
-                          if flag6 then
-                            flag6 = LocalPlayer.Character
-                            if flag6 then
-                              character = LocalPlayer.Character
-                              return (character:FindFirstChild(arg))
-                            end
-                          end
-                        end
-                      end
-                    end
-                  else
-                    flag6 = n7 > 0
-
-                    if not flag6 then
-                      if ScriptStorage then
-                        if ScriptStorage.Tools then
-                          flag6 = ScriptStorage.Tools[arg]
-
-                          if not flag6 then
-                            if LocalPlayer then
-                              v16 = LocalPlayer
-
-                              if v16:FindFirstChild("Backpack") then
-                                flag6 = LocalPlayer.Backpack:FindFirstChild(arg)
-
-                                if not flag6 then
-                                  flag6 = LocalPlayer
-
-                                  if flag6 then
-                                    flag6 = LocalPlayer.Character
-                                    if flag6 then
-                                      character = LocalPlayer.Character
-                                      return (character:FindFirstChild(arg))
-                                    end
-                                  end
-                                end
-                              else
-                                flag6 = LocalPlayer
-
-                                if flag6 then
-                                  flag6 = LocalPlayer.Character
-                                  if flag6 then
-                                    character = LocalPlayer.Character
-                                    return (character:FindFirstChild(arg))
-                                  end
-                                end
-                              end
-                            else
-                              flag6 = LocalPlayer
-
-                              if flag6 then
-                                flag6 = LocalPlayer.Character
-                                if flag6 then
-                                  character = LocalPlayer.Character
-                                  return (character:FindFirstChild(arg))
-                                end
-                              end
-                            end
-                          end
-                        elseif LocalPlayer then
-                          v16 = LocalPlayer
-
-                          if v16:FindFirstChild("Backpack") then
-                            flag6 = LocalPlayer.Backpack:FindFirstChild(arg)
-
-                            if not flag6 then
-                              flag6 = LocalPlayer
-
-                              if flag6 then
-                                flag6 = LocalPlayer.Character
-                                if flag6 then
-                                  character = LocalPlayer.Character
-                                  return (character:FindFirstChild(arg))
-                                end
-                              end
-                            end
-                          else
-                            flag6 = LocalPlayer
-
-                            if flag6 then
-                              flag6 = LocalPlayer.Character
-                              if flag6 then
-                                character = LocalPlayer.Character
-                                return (character:FindFirstChild(arg))
-                              end
-                            end
-                          end
-                        else
-                          flag6 = LocalPlayer
-
-                          if flag6 then
-                            flag6 = LocalPlayer.Character
-                            if flag6 then
-                              character = LocalPlayer.Character
-                              return (character:FindFirstChild(arg))
-                            end
-                          end
-                        end
-                      elseif LocalPlayer then
-                        v16 = LocalPlayer
-
-                        if v16:FindFirstChild("Backpack") then
-                          flag6 = LocalPlayer.Backpack:FindFirstChild(arg)
-
-                          if not flag6 then
-                            flag6 = LocalPlayer
-
-                            if flag6 then
-                              flag6 = LocalPlayer.Character
-                              if flag6 then
-                                character = LocalPlayer.Character
-                                return (character:FindFirstChild(arg))
-                              end
-                            end
-                          end
-                        else
-                          flag6 = LocalPlayer
-
-                          if flag6 then
-                            flag6 = LocalPlayer.Character
-                            if flag6 then
-                              character = LocalPlayer.Character
-                              return (character:FindFirstChild(arg))
-                            end
-                          end
-                        end
-                      else
-                        flag6 = LocalPlayer
-
-                        if flag6 then
-                          flag6 = LocalPlayer.Character
-                          if flag6 then
-                            character = LocalPlayer.Character
-                            return (character:FindFirstChild(arg))
-                          end
-                        end
-                      end
-                    end
+                  if ScriptStorage.MeleesOwned and ScriptStorage.MeleesOwned[meleeName] then
+                    return true
                   end
-                else
-                  flag6 = n7 > 0
-
-                  if not flag6 then
-                    if ScriptStorage then
-                      if ScriptStorage.Tools then
-                        flag6 = ScriptStorage.Tools[arg]
-
-                        if not flag6 then
-                          if LocalPlayer then
-                            v16 = LocalPlayer
-
-                            if v16:FindFirstChild("Backpack") then
-                              flag6 = LocalPlayer.Backpack:FindFirstChild(arg)
-
-                              if not flag6 then
-                                flag6 = LocalPlayer
-
-                                if flag6 then
-                                  flag6 = LocalPlayer.Character
-                                  if flag6 then
-                                    character = LocalPlayer.Character
-                                    return (character:FindFirstChild(arg))
-                                  end
-                                end
-                              end
-                            else
-                              flag6 = LocalPlayer
-
-                              if flag6 then
-                                flag6 = LocalPlayer.Character
-                                if flag6 then
-                                  character = LocalPlayer.Character
-                                  return (character:FindFirstChild(arg))
-                                end
-                              end
-                            end
-                          else
-                            flag6 = LocalPlayer
-
-                            if flag6 then
-                              flag6 = LocalPlayer.Character
-                              if flag6 then
-                                character = LocalPlayer.Character
-                                return (character:FindFirstChild(arg))
-                              end
-                            end
-                          end
-                        end
-                      elseif LocalPlayer then
-                        v16 = LocalPlayer
-
-                        if v16:FindFirstChild("Backpack") then
-                          flag6 = LocalPlayer.Backpack:FindFirstChild(arg)
-
-                          if not flag6 then
-                            flag6 = LocalPlayer
-
-                            if flag6 then
-                              flag6 = LocalPlayer.Character
-                              if flag6 then
-                                character = LocalPlayer.Character
-                                return (character:FindFirstChild(arg))
-                              end
-                            end
-                          end
-                        else
-                          flag6 = LocalPlayer
-
-                          if flag6 then
-                            flag6 = LocalPlayer.Character
-                            if flag6 then
-                              character = LocalPlayer.Character
-                              return (character:FindFirstChild(arg))
-                            end
-                          end
-                        end
-                      else
-                        flag6 = LocalPlayer
-
-                        if flag6 then
-                          flag6 = LocalPlayer.Character
-                          if flag6 then
-                            character = LocalPlayer.Character
-                            return (character:FindFirstChild(arg))
-                          end
-                        end
-                      end
-                    elseif LocalPlayer then
-                      if LocalPlayer:FindFirstChild("Backpack") then
-                        flag6 = LocalPlayer.Backpack:FindFirstChild(arg)
-
-                        if not flag6 then
-                          flag6 = LocalPlayer
-
-                          if flag6 then
-                            flag6 = LocalPlayer.Character
-                            if flag6 then
-                              character = LocalPlayer.Character
-                              return (character:FindFirstChild(arg))
-                            end
-                          end
-                        end
-                      else
-                        flag6 = LocalPlayer
-
-                        if flag6 then
-                          flag6 = LocalPlayer.Character
-                          if flag6 then
-                            character = LocalPlayer.Character
-                            return (character:FindFirstChild(arg))
-                          end
-                        end
-                      end
-                    else
-                      flag6 = LocalPlayer
-
-                      if flag6 then
-                        flag6 = LocalPlayer.Character
-                        if flag6 then
-                          return (LocalPlayer.Character:FindFirstChild(arg))
-                        end
-                      end
-                    end
+                  local storedMastery = tonumber(ScriptStorage.Melees and ScriptStorage.Melees[meleeName]) or 0
+                  if storedMastery > 0 then
+                    return true
+                  end
+                  if ScriptStorage.Tools and ScriptStorage.Tools[meleeName] then
+                    return true
                   end
                 end
 
-                return flag6
+                if LocalPlayer then
+                  local backpack = LocalPlayer:FindFirstChild("Backpack")
+                  if backpack and backpack:FindFirstChild(meleeName) then
+                    return true
+                  end
+                  local character = LocalPlayer.Character
+                  if character and character:FindFirstChild(meleeName) then
+                    return true
+                  end
+                end
+
+                return false
               end
 
-              MeleesTable = {"Black Leg", "Electro", "Fishman Karate", "Dragon Claw", "Superhuman", "Death Step", "Sharkman Karate", "Electric Claw", "Dragon Talon", "Godhuman", "SanguineArt"}
+                            MeleesTable = {"Black Leg", "Electro", "Fishman Karate", "Dragon Claw", "Superhuman", "Death Step", "Sharkman Karate", "Electric Claw", "Dragon Talon", "Godhuman", "SanguineArt"}
               MeleesId = {"BlackLeg", "Electro", "FishmanKarate", "DragonClaw", "Superhuman", "DeathStep", "SharkmanKarate", "ElectricClaw", "DragonTalon", "Godhuman", "SanguineArt"}
 
               local function fn36()
@@ -4600,11 +3996,11 @@ if true then
                 fn37()
               end
 
-              local function fn37(arg)
+              local function formatFruitName(arg)
                 return string.match(arg, "(((%u)%-?)([^-.]+))$") .. " Fruit"
               end
 
-              FruitIdToName = fn37
+              FruitIdToName = formatFruitName
 
               Split = function(arg, arg2)
                 if arg2 == nil then
@@ -5223,753 +4619,57 @@ if true then
               end
 
               local function getCurrentClaimQuest()
-                local playerGui, trackedQuestFrame, description, header, text, text2, main, quest, text3, str4, v16, str5, v17
-                playerGui = game.Players.LocalPlayer:FindFirstChild("PlayerGui")
+                local playerGui = game.Players.LocalPlayer:FindFirstChild("PlayerGui")
                 if not playerGui then
                   return nil, nil
                 end
-                trackedQuestFrame = playerGui:FindFirstChild("TrackedQuestFrame")
 
-                if not (trackedQuestFrame and (trackedQuestFrame.Enabled and (trackedQuestFrame:FindFirstChild("Frame") and trackedQuestFrame.Frame.Visible))) then
-                  main = playerGui:FindFirstChild("Main")
+                -- 1. Check TrackedQuestFrame
+                local trackedQuestFrame = playerGui:FindFirstChild("TrackedQuestFrame")
+                if trackedQuestFrame and trackedQuestFrame.Enabled and trackedQuestFrame:FindFirstChild("Frame") and trackedQuestFrame.Frame.Visible then
+                  local frame = trackedQuestFrame.Frame
+                  local headerContainer = frame:FindFirstChild("header")
+                  local headerLabel = headerContainer and headerContainer:FindFirstChild("textLabel")
+                  local headerText = nil
+                  if headerLabel then
+                    local innerLabel = headerLabel:FindFirstChild("textLabel")
+                    headerText = (innerLabel and innerLabel.Text) or headerLabel.Text
+                  end
 
-                  if main then
-                    quest = main:FindFirstChild("Quest")
+                  local descLabel = frame:FindFirstChild("description")
+                  local descText = (descLabel and descLabel.Text ~= "" and descLabel.Text) or nil
 
-                    if quest and (quest.Visible and (quest:FindFirstChild("Container") and (quest.Container:FindFirstChild("QuestTitle") and quest.Container.QuestTitle:FindFirstChild("Title")))) then
-                      text3 = quest.Container.QuestTitle.Title.Text
+                  local targetText = descText
+                  if not targetText and headerText then
+                    targetText = headerText:match("[Dd]efeat%s*%d*%s*(.-)$") or headerText:match("[Dd]efeat%s*(.-)$") or headerText
+                  end
 
-                      if text3 and ((text3 ~= "") and (text3 ~= "QUEST")) then
-                        str4 = text3:gsub("%s*[Dd]efeat%s*(%d*)%s*(.-)%s*%b()", "%2")
-
-                        if str4 and ((str4 ~= "") and (str4 ~= text3)) then
-                          if type(str4) ~= "string" then
-                            return str4, text3
-                          else
-                            v16 = string.gsub(str4, "Military ", "Mil. ")
-
-                            if v16 then
-                              return v16, text3
-                            else
-                              return str4, text3
-                            end
-                          end
-                        else
-                          return nil, nil
-                        end
-                      else
-                        return nil, nil
-                      end
-                    else
-                      return nil, nil
-                    end
-                  else
-                    return nil, nil
+                  if targetText and targetText ~= "" then
+                    local cleanName = targetText:gsub("%s*%b()", ""):gsub("^%s*(.-)%s*$", "%1")
+                    local formattedName = string.gsub(cleanName, "Military ", "Mil. ")
+                    return formattedName, headerText or cleanName
                   end
                 end
 
-                description = trackedQuestFrame.Frame:FindFirstChild("description")
-                header = trackedQuestFrame.Frame:FindFirstChild("header")
-
-                if header then
-                  header = trackedQuestFrame.Frame.header:FindFirstChild("textLabel")
-
-                  if header then
-                    if header:FindFirstChild("textLabel") then
-                      text = header.textLabel.Text
-
-                      if text then
-                        header = text
-
-                        if description then
-                          if description.Text ~= "" then
-                            text2 = description.Text
-
-                            if text2 then
-                              if text2 ~= "" then
-                                str5 = text2:gsub("%s*%b()", ""):gsub("^%s*(.-)%s*$", "%1")
-
-                                if type(str5) ~= "string" then
-                                  v17 = str5
-                                else
-                                  v17 = string.gsub(str5, "Military ", "Mil. ")
-
-                                  if not v17 then
-                                    v17 = str5
-                                  end
-                                end
-
-                                if header then
-                                  return v17, header
-                                else
-                                  return v17, str5
-                                end
-                              end
-
-                              main = playerGui:FindFirstChild("Main")
-
-                              if main then
-                                quest = main:FindFirstChild("Quest")
-
-                                if quest and (quest.Visible and (quest:FindFirstChild("Container") and (quest.Container:FindFirstChild("QuestTitle") and quest.Container.QuestTitle:FindFirstChild("Title")))) then
-                                  text3 = quest.Container.QuestTitle.Title.Text
-
-                                  if text3 and ((text3 ~= "") and (text3 ~= "QUEST")) then
-                                    str4 = text3:gsub("%s*[Dd]efeat%s*(%d*)%s*(.-)%s*%b()", "%2")
-
-                                    if str4 and ((str4 ~= "") and (str4 ~= text3)) then
-                                      if type(str4) ~= "string" then
-                                        return str4, text3
-                                      else
-                                        v16 = string.gsub(str4, "Military ", "Mil. ")
-
-                                        if v16 then
-                                          return v16, text3
-                                        else
-                                          return str4, text3
-                                        end
-                                      end
-                                    else
-                                      return nil, nil
-                                    end
-                                  else
-                                    return nil, nil
-                                  end
-                                else
-                                  return nil, nil
-                                end
-                              else
-                                return nil, nil
-                              end
-                            end
-
-                            if header then
-                              text2 = header:match("[Dd]efeat%s*%d*%s*(.-)$")
-
-                              if not text2 then
-                                text2 = header:match("[Dd]efeat%s*(.-)$")
-
-                                if not text2 then
-                                  text2 = header
-                                end
-                              end
-
-                              if text2 ~= "" then
-                                str5 = text2:gsub("%s*%b()", ""):gsub("^%s*(.-)%s*$", "%1")
-
-                                if type(str5) ~= "string" then
-                                  v17 = str5
-                                else
-                                  v17 = string.gsub(str5, "Military ", "Mil. ")
-
-                                  if not v17 then
-                                    v17 = str5
-                                  end
-                                end
-
-                                if header then
-                                  return v17, header
-                                else
-                                  return v17, str5
-                                end
-                              end
-                            end
-                          elseif header then
-                            text2 = header:match("[Dd]efeat%s*%d*%s*(.-)$")
-
-                            if not text2 then
-                              text2 = header:match("[Dd]efeat%s*(.-)$")
-
-                              if not text2 then
-                                text2 = header
-                              end
-                            end
-
-                            if text2 ~= "" then
-                              str5 = text2:gsub("%s*%b()", ""):gsub("^%s*(.-)%s*$", "%1")
-
-                              if type(str5) ~= "string" then
-                                v17 = str5
-                              else
-                                v17 = string.gsub(str5, "Military ", "Mil. ")
-
-                                if not v17 then
-                                  v17 = str5
-                                end
-                              end
-
-                              if header then
-                                return v17, header
-                              else
-                                return v17, str5
-                              end
-                            end
-
-                            main = playerGui:FindFirstChild("Main")
-
-                            if main then
-                              quest = main:FindFirstChild("Quest")
-
-                              if quest and (quest.Visible and (quest:FindFirstChild("Container") and (quest.Container:FindFirstChild("QuestTitle") and quest.Container.QuestTitle:FindFirstChild("Title")))) then
-                                text3 = quest.Container.QuestTitle.Title.Text
-
-                                if text3 and ((text3 ~= "") and (text3 ~= "QUEST")) then
-                                  str4 = text3:gsub("%s*[Dd]efeat%s*(%d*)%s*(.-)%s*%b()", "%2")
-
-                                  if str4 and ((str4 ~= "") and (str4 ~= text3)) then
-                                    if type(str4) ~= "string" then
-                                      return str4, text3
-                                    else
-                                      v16 = string.gsub(str4, "Military ", "Mil. ")
-
-                                      if v16 then
-                                        return v16, text3
-                                      else
-                                        return str4, text3
-                                      end
-                                    end
-                                  else
-                                    return nil, nil
-                                  end
-                                else
-                                  return nil, nil
-                                end
-                              else
-                                return nil, nil
-                              end
-                            else
-                              return nil, nil
-                            end
-                          end
-                        elseif header then
-                          text2 = header:match("[Dd]efeat%s*%d*%s*(.-)$")
-
-                          if not text2 then
-                            text2 = header:match("[Dd]efeat%s*(.-)$")
-
-                            if not text2 then
-                              text2 = header
-                            end
-                          end
-
-                          if text2 ~= "" then
-                            str5 = text2:gsub("%s*%b()", ""):gsub("^%s*(.-)%s*$", "%1")
-
-                            if type(str5) ~= "string" then
-                              v17 = str5
-                            else
-                              v17 = string.gsub(str5, "Military ", "Mil. ")
-
-                              if not v17 then
-                                v17 = str5
-                              end
-                            end
-
-                            if header then
-                              return v17, header
-                            else
-                              return v17, str5
-                            end
-                          end
-                        end
-
-                        main = playerGui:FindFirstChild("Main")
-
-                        if main then
-                          quest = main:FindFirstChild("Quest")
-
-                          if quest and (quest.Visible and (quest:FindFirstChild("Container") and (quest.Container:FindFirstChild("QuestTitle") and quest.Container.QuestTitle:FindFirstChild("Title")))) then
-                            text3 = quest.Container.QuestTitle.Title.Text
-
-                            if text3 and ((text3 ~= "") and (text3 ~= "QUEST")) then
-                              str4 = text3:gsub("%s*[Dd]efeat%s*(%d*)%s*(.-)%s*%b()", "%2")
-
-                              if str4 and ((str4 ~= "") and (str4 ~= text3)) then
-                                if type(str4) ~= "string" then
-                                  return str4, text3
-                                else
-                                  v16 = string.gsub(str4, "Military ", "Mil. ")
-
-                                  if v16 then
-                                    return v16, text3
-                                  else
-                                    return str4, text3
-                                  end
-                                end
-                              else
-                                return nil, nil
-                              end
-                            else
-                              return nil, nil
-                            end
-                          else
-                            return nil, nil
-                          end
-                        else
-                          return nil, nil
-                        end
+                -- 2. Check Main.Quest
+                local mainGui = playerGui:FindFirstChild("Main")
+                if mainGui then
+                  local quest = mainGui:FindFirstChild("Quest")
+                  if quest and quest.Visible and quest:FindFirstChild("Container") then
+                    local questTitle = quest.Container:FindFirstChild("QuestTitle")
+                    local title = questTitle and questTitle:FindFirstChild("Title")
+                    local titleText = title and title.Text
+                    if titleText and titleText ~= "" and titleText ~= "QUEST" then
+                      local mobName = titleText:gsub("%s*[Dd]efeat%s*(%d*)%s*(.-)%s*%b()", "%2")
+                      if mobName and mobName ~= "" and mobName ~= titleText then
+                        local formattedName = string.gsub(mobName, "Military ", "Mil. ")
+                        return formattedName, titleText
                       end
-                    end
-
-                    header = header.Text
-
-                    if description then
-                      if description.Text ~= "" then
-                        text2 = description.Text
-
-                        if text2 then
-                          if text2 ~= "" then
-                            str5 = text2:gsub("%s*%b()", ""):gsub("^%s*(.-)%s*$", "%1")
-
-                            if type(str5) ~= "string" then
-                              v17 = str5
-                            else
-                              v17 = string.gsub(str5, "Military ", "Mil. ")
-
-                              if not v17 then
-                                v17 = str5
-                              end
-                            end
-
-                            if header then
-                              return v17, header
-                            else
-                              return v17, str5
-                            end
-                          end
-
-                          main = playerGui:FindFirstChild("Main")
-
-                          if main then
-                            quest = main:FindFirstChild("Quest")
-
-                            if quest and (quest.Visible and (quest:FindFirstChild("Container") and (quest.Container:FindFirstChild("QuestTitle") and quest.Container.QuestTitle:FindFirstChild("Title")))) then
-                              text3 = quest.Container.QuestTitle.Title.Text
-
-                              if text3 and ((text3 ~= "") and (text3 ~= "QUEST")) then
-                                str4 = text3:gsub("%s*[Dd]efeat%s*(%d*)%s*(.-)%s*%b()", "%2")
-
-                                if str4 and ((str4 ~= "") and (str4 ~= text3)) then
-                                  if type(str4) ~= "string" then
-                                    return str4, text3
-                                  else
-                                    v16 = string.gsub(str4, "Military ", "Mil. ")
-
-                                    if v16 then
-                                      return v16, text3
-                                    else
-                                      return str4, text3
-                                    end
-                                  end
-                                else
-                                  return nil, nil
-                                end
-                              else
-                                return nil, nil
-                              end
-                            else
-                              return nil, nil
-                            end
-                          else
-                            return nil, nil
-                          end
-                        end
-
-                        if header then
-                          text2 = header:match("[Dd]efeat%s*%d*%s*(.-)$")
-
-                          if not text2 then
-                            text2 = header:match("[Dd]efeat%s*(.-)$")
-
-                            if not text2 then
-                              text2 = header
-                            end
-                          end
-
-                          if text2 ~= "" then
-                            str5 = text2:gsub("%s*%b()", ""):gsub("^%s*(.-)%s*$", "%1")
-
-                            if type(str5) ~= "string" then
-                              v17 = str5
-                            else
-                              v17 = string.gsub(str5, "Military ", "Mil. ")
-
-                              if not v17 then
-                                v17 = str5
-                              end
-                            end
-
-                            if header then
-                              return v17, header
-                            else
-                              return v17, str5
-                            end
-                          end
-                        end
-                      elseif header then
-                        text2 = header:match("[Dd]efeat%s*%d*%s*(.-)$")
-
-                        if not text2 then
-                          text2 = header:match("[Dd]efeat%s*(.-)$")
-
-                          if not text2 then
-                            text2 = header
-                          end
-                        end
-
-                        if text2 ~= "" then
-                          str5 = text2:gsub("%s*%b()", ""):gsub("^%s*(.-)%s*$", "%1")
-
-                          if type(str5) ~= "string" then
-                            v17 = str5
-                          else
-                            v17 = string.gsub(str5, "Military ", "Mil. ")
-
-                            if not v17 then
-                              v17 = str5
-                            end
-                          end
-
-                          if header then
-                            return v17, header
-                          else
-                            return v17, str5
-                          end
-                        end
-
-                        main = playerGui:FindFirstChild("Main")
-
-                        if main then
-                          quest = main:FindFirstChild("Quest")
-
-                          if quest and (quest.Visible and (quest:FindFirstChild("Container") and (quest.Container:FindFirstChild("QuestTitle") and quest.Container.QuestTitle:FindFirstChild("Title")))) then
-                            text3 = quest.Container.QuestTitle.Title.Text
-
-                            if text3 and ((text3 ~= "") and (text3 ~= "QUEST")) then
-                              str4 = text3:gsub("%s*[Dd]efeat%s*(%d*)%s*(.-)%s*%b()", "%2")
-
-                              if str4 and ((str4 ~= "") and (str4 ~= text3)) then
-                                if type(str4) ~= "string" then
-                                  return str4, text3
-                                else
-                                  v16 = string.gsub(str4, "Military ", "Mil. ")
-
-                                  if v16 then
-                                    return v16, text3
-                                  else
-                                    return str4, text3
-                                  end
-                                end
-                              else
-                                return nil, nil
-                              end
-                            else
-                              return nil, nil
-                            end
-                          else
-                            return nil, nil
-                          end
-                        else
-                          return nil, nil
-                        end
-                      end
-                    elseif header then
-                      text2 = header:match("[Dd]efeat%s*%d*%s*(.-)$")
-
-                      if not text2 then
-                        text2 = header:match("[Dd]efeat%s*(.-)$")
-
-                        if not text2 then
-                          text2 = header
-                        end
-                      end
-
-                      if text2 ~= "" then
-                        str5 = text2:gsub("%s*%b()", ""):gsub("^%s*(.-)%s*$", "%1")
-
-                        if type(str5) ~= "string" then
-                          v17 = str5
-                        else
-                          v17 = string.gsub(str5, "Military ", "Mil. ")
-
-                          if not v17 then
-                            v17 = str5
-                          end
-                        end
-
-                        if header then
-                          return v17, header
-                        else
-                          return v17, str5
-                        end
-                      end
-                    end
-
-                    main = playerGui:FindFirstChild("Main")
-
-                    if main then
-                      quest = main:FindFirstChild("Quest")
-
-                      if quest and (quest.Visible and (quest:FindFirstChild("Container") and (quest.Container:FindFirstChild("QuestTitle") and quest.Container.QuestTitle:FindFirstChild("Title")))) then
-                        text3 = quest.Container.QuestTitle.Title.Text
-
-                        if text3 and ((text3 ~= "") and (text3 ~= "QUEST")) then
-                          str4 = text3:gsub("%s*[Dd]efeat%s*(%d*)%s*(.-)%s*%b()", "%2")
-
-                          if str4 and ((str4 ~= "") and (str4 ~= text3)) then
-                            if type(str4) ~= "string" then
-                              return str4, text3
-                            else
-                              v16 = string.gsub(str4, "Military ", "Mil. ")
-
-                              if v16 then
-                                return v16, text3
-                              else
-                                return str4, text3
-                              end
-                            end
-                          else
-                            return nil, nil
-                          end
-                        else
-                          return nil, nil
-                        end
-                      else
-                        return nil, nil
-                      end
-                    else
-                      return nil, nil
                     end
                   end
                 end
 
-                if description then
-                  if description.Text ~= "" then
-                    text2 = description.Text
-
-                    if text2 then
-                      if text2 ~= "" then
-                        str5 = text2:gsub("%s*%b()", ""):gsub("^%s*(.-)%s*$", "%1")
-
-                        if type(str5) ~= "string" then
-                          v17 = str5
-                        else
-                          v17 = string.gsub(str5, "Military ", "Mil. ")
-
-                          if not v17 then
-                            v17 = str5
-                          end
-                        end
-
-                        if header then
-                          return v17, header
-                        else
-                          return v17, str5
-                        end
-                      end
-
-                      main = playerGui:FindFirstChild("Main")
-
-                      if main then
-                        quest = main:FindFirstChild("Quest")
-
-                        if quest and (quest.Visible and (quest:FindFirstChild("Container") and (quest.Container:FindFirstChild("QuestTitle") and quest.Container.QuestTitle:FindFirstChild("Title")))) then
-                          text3 = quest.Container.QuestTitle.Title.Text
-
-                          if text3 and ((text3 ~= "") and (text3 ~= "QUEST")) then
-                            str4 = text3:gsub("%s*[Dd]efeat%s*(%d*)%s*(.-)%s*%b()", "%2")
-
-                            if str4 and ((str4 ~= "") and (str4 ~= text3)) then
-                              if type(str4) ~= "string" then
-                                return str4, text3
-                              else
-                                v16 = string.gsub(str4, "Military ", "Mil. ")
-
-                                if v16 then
-                                  return v16, text3
-                                else
-                                  return str4, text3
-                                end
-                              end
-                            else
-                              return nil, nil
-                            end
-                          else
-                            return nil, nil
-                          end
-                        else
-                          return nil, nil
-                        end
-                      else
-                        return nil, nil
-                      end
-                    end
-
-                    if header then
-                      text2 = header:match("[Dd]efeat%s*%d*%s*(.-)$")
-
-                      if not text2 then
-                        text2 = header:match("[Dd]efeat%s*(.-)$")
-
-                        if not text2 then
-                          text2 = header
-                        end
-                      end
-
-                      if text2 ~= "" then
-                        str5 = text2:gsub("%s*%b()", ""):gsub("^%s*(.-)%s*$", "%1")
-
-                        if type(str5) ~= "string" then
-                          v17 = str5
-                        else
-                          v17 = string.gsub(str5, "Military ", "Mil. ")
-
-                          if not v17 then
-                            v17 = str5
-                          end
-                        end
-
-                        if header then
-                          return v17, header
-                        else
-                          return v17, str5
-                        end
-                      end
-                    end
-                  elseif header then
-                    text2 = header:match("[Dd]efeat%s*%d*%s*(.-)$")
-
-                    if not text2 then
-                      text2 = header:match("[Dd]efeat%s*(.-)$")
-
-                      if not text2 then
-                        text2 = header
-                      end
-                    end
-
-                    if text2 ~= "" then
-                      str5 = text2:gsub("%s*%b()", ""):gsub("^%s*(.-)%s*$", "%1")
-
-                      if type(str5) ~= "string" then
-                        v17 = str5
-                      else
-                        v17 = string.gsub(str5, "Military ", "Mil. ")
-
-                        if not v17 then
-                          v17 = str5
-                        end
-                      end
-
-                      if header then
-                        return v17, header
-                      else
-                        return v17, str5
-                      end
-                    end
-
-                    main = playerGui:FindFirstChild("Main")
-
-                    if main then
-                      quest = main:FindFirstChild("Quest")
-
-                      if quest and (quest.Visible and (quest:FindFirstChild("Container") and (quest.Container:FindFirstChild("QuestTitle") and quest.Container.QuestTitle:FindFirstChild("Title")))) then
-                        text3 = quest.Container.QuestTitle.Title.Text
-
-                        if text3 and ((text3 ~= "") and (text3 ~= "QUEST")) then
-                          str4 = text3:gsub("%s*[Dd]efeat%s*(%d*)%s*(.-)%s*%b()", "%2")
-
-                          if str4 and ((str4 ~= "") and (str4 ~= text3)) then
-                            if type(str4) ~= "string" then
-                              return str4, text3
-                            else
-                              v16 = string.gsub(str4, "Military ", "Mil. ")
-
-                              if v16 then
-                                return v16, text3
-                              else
-                                return str4, text3
-                              end
-                            end
-                          else
-                            return nil, nil
-                          end
-                        else
-                          return nil, nil
-                        end
-                      else
-                        return nil, nil
-                      end
-                    else
-                      return nil, nil
-                    end
-                  end
-                elseif header then
-                  text2 = header:match("[Dd]efeat%s*%d*%s*(.-)$")
-
-                  if not text2 then
-                    text2 = header:match("[Dd]efeat%s*(.-)$")
-
-                    if not text2 then
-                      text2 = header
-                    end
-                  end
-
-                  if text2 ~= "" then
-                    str5 = text2:gsub("%s*%b()", ""):gsub("^%s*(.-)%s*$", "%1")
-
-                    if type(str5) ~= "string" then
-                      v17 = str5
-                    else
-                      v17 = string.gsub(str5, "Military ", "Mil. ")
-
-                      if not v17 then
-                        v17 = str5
-                      end
-                    end
-
-                    if header then
-                      return v17, header
-                    else
-                      return v17, str5
-                    end
-                  end
-                end
-
-                main = playerGui:FindFirstChild("Main")
-
-                if main then
-                  quest = main:FindFirstChild("Quest")
-
-                  if quest and (quest.Visible and (quest:FindFirstChild("Container") and (quest.Container:FindFirstChild("QuestTitle") and quest.Container.QuestTitle:FindFirstChild("Title")))) then
-                    text3 = quest.Container.QuestTitle.Title.Text
-
-                    if text3 and ((text3 ~= "") and (text3 ~= "QUEST")) then
-                      str4 = text3:gsub("%s*[Dd]efeat%s*(%d*)%s*(.-)%s*%b()", "%2")
-
-                      if str4 and ((str4 ~= "") and (str4 ~= text3)) then
-                        if type(str4) ~= "string" then
-                          return str4, text3
-                        else
-                          v16 = string.gsub(str4, "Military ", "Mil. ")
-
-                          if v16 then
-                            return v16, text3
-                          else
-                            return str4, text3
-                          end
-                        end
-                      else
-                        return nil, nil
-                      end
-                    else
-                      return nil, nil
-                    end
-                  else
-                    return nil, nil
-                  end
-                else
-                  return nil, nil
-                end
+                return nil, nil
               end
 
               QuestController.GetCurrentClaimQuest = getCurrentClaimQuest
@@ -6123,10 +4823,10 @@ if true then
             TweenController.CollisionCharacter = nil
             TweenController.CollisionConnection = nil
             TweenController.CollisionParts = {}
-            local fn30, stopTween, fn32
-            local n6 = 0
+            local prepareNoclip, stopTween, calculateTweenSpeed
+            local speedSlowUntilTick = 0
 
-            fn30 = function()
+            prepareNoclip = function()
               local character = LocalPlayer.Character
 
               if character then
@@ -6206,18 +4906,16 @@ if true then
               end
             end
 
-            fn32 = function(arg, arg2, arg3)
-              local now5 = os.clock()
+            calculateTweenSpeed = function(currentPos, targetPos, moveDirection)
+              local nowClock = os.clock()
 
-              if arg2 then
-                if arg3 then
-                  if (arg2 - arg):Dot(arg3) > 8 then
-                    n6 = now5 + 5
-                  end
+              if targetPos and moveDirection then
+                if (targetPos - currentPos):Dot(moveDirection) > 8 then
+                  speedSlowUntilTick = nowClock + 5
                 end
               end
 
-              if now5 < n6 then
+              if nowClock < speedSlowUntilTick then
                 return 220
               end
               return 300
@@ -7575,7 +6273,7 @@ if true then
                       v23 = nil
                       v24 = nil
                       TweenController.Playing = true
-                      fn30()
+                      prepareNoclip()
 
                       if LocalPlayer.Character then
                         humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
@@ -7596,13 +6294,13 @@ if true then
                                 local n9
 
                                 if Config.FastTween then
-                                  n9 = fn32(position3, v23, v24)
+                                  n9 = calculateTweenSpeed(position3, v23, v24)
 
                                   if magnitude < 18 then
                                     n9 = 25
                                   end
                                 elseif Config.TweenFast then
-                                  n9 = fn32(position3, v23, v24)
+                                  n9 = calculateTweenSpeed(position3, v23, v24)
 
                                   if magnitude < 18 then
                                     n9 = 25
@@ -7729,7 +6427,7 @@ if true then
                     v19 = nil
                     v20 = nil
                     TweenController.Playing = true
-                    fn30()
+                    prepareNoclip()
 
                     if LocalPlayer.Character then
                       humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
@@ -7750,13 +6448,13 @@ if true then
                               local n10
 
                               if Config.FastTween then
-                                n10 = fn32(position2, v19, v20)
+                                n10 = calculateTweenSpeed(position2, v19, v20)
 
                                 if magnitude < 18 then
                                   n10 = 25
                                 end
                               elseif Config.TweenFast then
-                                n10 = fn32(position2, v19, v20)
+                                n10 = calculateTweenSpeed(position2, v19, v20)
 
                                 if magnitude < 18 then
                                   n10 = 25
@@ -7844,7 +6542,7 @@ if true then
                   v19 = nil
                   v20 = nil
                   TweenController.Playing = true
-                  fn30()
+                  prepareNoclip()
 
                   if LocalPlayer.Character then
                     humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
@@ -7865,13 +6563,13 @@ if true then
                             local n10
 
                             if Config.FastTween then
-                              n10 = fn32(position2, v19, v20)
+                              n10 = calculateTweenSpeed(position2, v19, v20)
 
                               if magnitude < 18 then
                                 n10 = 25
                               end
                             elseif Config.TweenFast then
-                              n10 = fn32(position2, v19, v20)
+                              n10 = calculateTweenSpeed(position2, v19, v20)
 
                               if magnitude < 18 then
                                 n10 = 25
@@ -8471,49 +7169,40 @@ if true then
                 local RegisterHit = require(net3):RemoteEvent("RegisterHit", true)
 
                 local function attack()
-                  local tbl12 = {}
+                  local hitTargets = {}
 
-                  for _, v17 in ipairs(GetAllBladeHits()) do
-                    table.insert(tbl12, v17)
+                  for _, bladeHit in ipairs(GetAllBladeHits()) do
+                    table.insert(hitTargets, bladeHit)
                   end
 
-                  for _, v17 in ipairs(Getplayerhit()) do
-                    table.insert(tbl12, v17)
+                  for _, playerHit in ipairs(Getplayerhit()) do
+                    table.insert(hitTargets, playerHit)
                   end
 
-                  if #tbl12 ~= 0 then
-                    local v17 = tbl12[1]
+                  if #hitTargets ~= 0 then
+                    local primaryTarget = hitTargets[1]
 
-                    if v17 then
-                      local head = v17:FindFirstChild("Head")
-                      local humanoidRootPart
-
-                      if head then
-                        humanoidRootPart = head
-                      else
-                        humanoidRootPart = v17:FindFirstChild("HumanoidRootPart")
-                        if not humanoidRootPart then
-                          return
-                        end
+                    if primaryTarget then
+                      local head = primaryTarget:FindFirstChild("Head")
+                      local targetRootPart = head or primaryTarget:FindFirstChild("HumanoidRootPart")
+                      if not targetRootPart then
+                        return
                       end
 
-                      local tbl13 = {humanoidRootPart, {}, [4] = "078da341"}
+                      local hitPayload = {targetRootPart, {}, [4] = "078da341"}
 
-                      for _, v18 in ipairs(tbl12) do
-                        local humanoidRootPart2 = v18:FindFirstChild("HumanoidRootPart")
-
-                        if humanoidRootPart2 then
-                          table.insert(tbl13[2], {v18, humanoidRootPart2})
-                          table.insert(tbl13[2], v18)
+                      for _, enemy in ipairs(hitTargets) do
+                        local enemyRootPart = enemy:FindFirstChild("HumanoidRootPart")
+                        if enemyRootPart then
+                          table.insert(hitPayload[2], {enemy, enemyRootPart})
+                          table.insert(hitPayload[2], enemy)
                         end
                       end
 
                       RegisterAttack:FireServer(0)
-                      RegisterHit:FireServer(unpack(tbl13))
+                      RegisterHit:FireServer(unpack(hitPayload))
                       return
                     end
-
-                    return
                   end
                 end
 
@@ -8554,128 +7243,109 @@ if true then
                 lastIdleTick = os.time()
               end
 
-              local tbl11 = {GRAB = true, GRAB_DISTANCE = 350, BRING_LIMIT = 6, BRING_FOLLOW_DISTANCE = 45, MAX_ATTACK_DURATION = 3, MAX_ATTACK_DURATION_2 = 30, LEVITATE_TIME = 1, CurrentIndex = 1, FixedAnchors = {}, BringSessions = {}}
-              tbl11.SpecialClusterMobs = ScriptStorage.SpecialClusterMobs or {["Dangerous Prisoner"] = true, Gladiator = true, Raider = true, Mercenary = true}
-              CombatController = tbl11
+              local CombatControllerInstance = {
+                GRAB = true,
+                GRAB_DISTANCE = 350,
+                BRING_LIMIT = 6,
+                BRING_FOLLOW_DISTANCE = 45,
+                MAX_ATTACK_DURATION = 3,
+                MAX_ATTACK_DURATION_2 = 30,
+                LEVITATE_TIME = 1,
+                CurrentIndex = 1,
+                FixedAnchors = {},
+                BringSessions = {}
+              }
+              CombatControllerInstance.SpecialClusterMobs = ScriptStorage.SpecialClusterMobs or {
+                ["Dangerous Prisoner"] = true,
+                Gladiator = true,
+                Raider = true,
+                Mercenary = true
+              }
+              CombatController = CombatControllerInstance
               CombatController.Special1 = CombatController.SpecialClusterMobs
               CombatController.BRING_TEST_VERSION = 3
               LastFound = os.time()
-              local tbl12 = {FarmingVelocity = true, FarmingPosition = true}
+              local GRAB_BODY_MOVERS = {FarmingVelocity = true, FarmingPosition = true}
 
-              CombatController.ReleaseGrab = function(arg)
-                if arg then
-                  local humanoidRootPart = arg:FindFirstChild("HumanoidRootPart")
-                  local exitTo, v17
-
+              CombatController.ReleaseGrab = function(mob)
+                if mob then
+                  local humanoidRootPart = mob:FindFirstChild("HumanoidRootPart") or mob.PrimaryPart
                   if humanoidRootPart then
-                    for k in pairs(tbl12) do
-                      exitTo = nil
-                      v17 = humanoidRootPart:FindFirstChild(k)
-
-                      if v17 then
-                        v17:Destroy()
-                      end
-                    end
-                  else
-                    humanoidRootPart = arg.PrimaryPart
-
-                    if humanoidRootPart then
-                      for k in pairs(tbl12) do
-                        exitTo = nil
-                        v17 = humanoidRootPart:FindFirstChild(k)
-
-                        if v17 then
-                          v17:Destroy()
-                        end
+                    for moverName in pairs(GRAB_BODY_MOVERS) do
+                      local mover = humanoidRootPart:FindFirstChild(moverName)
+                      if mover then
+                        mover:Destroy()
                       end
                     end
                   end
 
-                  arg:SetAttribute("IsGrabbed", nil)
-                  arg:SetAttribute("MidPoint", nil)
+                  mob:SetAttribute("IsGrabbed", nil)
+                  mob:SetAttribute("MidPoint", nil)
                   return
                 end
               end
 
-              CombatController.FreezeMob = function(arg, cFrame)
-                if arg then
-                  if arg.Parent then
-                    local humanoid = arg:FindFirstChildOfClass("Humanoid")
-                    local humanoidRootPart = arg:FindFirstChild("HumanoidRootPart")
-
-                    if not humanoidRootPart then
-                      humanoidRootPart = arg.PrimaryPart
-                      if not humanoidRootPart then
-                        return
-                      end
-                    end
-
-                    if humanoid then
-                      if humanoid.Health <= 0 then
-                        return
-                      end
-
-                      for _, child in ipairs(arg:GetChildren()) do
-                        if child:IsA("BasePart") then
-                          child.CanCollide = false
-                        end
-                      end
-
-                      humanoidRootPart.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
-                      humanoidRootPart.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
-                      local farmingVelocity = humanoidRootPart:FindFirstChild("FarmingVelocity")
-
-                      if not farmingVelocity then
-                        farmingVelocity = Instance.new("BodyVelocity")
-                        farmingVelocity.Name = "FarmingVelocity"
-                        farmingVelocity.Parent = humanoidRootPart
-                      end
-
-                      farmingVelocity.MaxForce = Vector3.new(1000000, 1000000, 1000000)
-                      farmingVelocity.Velocity = Vector3.new(0, 0, 0)
-                      if cFrame then
-                        humanoidRootPart.CFrame = cFrame
-                        return
-                      end
-                      return
-                    end
-
+              CombatController.FreezeMob = function(mob, targetCFrame)
+                if mob and mob.Parent then
+                  local humanoid = mob:FindFirstChildOfClass("Humanoid")
+                  local humanoidRootPart = mob:FindFirstChild("HumanoidRootPart") or mob.PrimaryPart
+                  if not humanoidRootPart then
                     return
                   end
 
-                  return
+                  if humanoid and humanoid.Health > 0 then
+                    for _, child in ipairs(mob:GetChildren()) do
+                      if child:IsA("BasePart") then
+                        child.CanCollide = false
+                      end
+                    end
+
+                    humanoidRootPart.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+                    humanoidRootPart.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+                    local farmingVelocity = humanoidRootPart:FindFirstChild("FarmingVelocity")
+
+                    if not farmingVelocity then
+                      farmingVelocity = Instance.new("BodyVelocity")
+                      farmingVelocity.Name = "FarmingVelocity"
+                      farmingVelocity.Parent = humanoidRootPart
+                    end
+
+                    farmingVelocity.MaxForce = Vector3.new(1000000, 1000000, 1000000)
+                    farmingVelocity.Velocity = Vector3.new(0, 0, 0)
+                    if targetCFrame then
+                      humanoidRootPart.CFrame = targetCFrame
+                    end
+                  end
                 end
               end
 
-              CombatController.CleanupGrabbed = function(arg)
+              CombatController.CleanupGrabbed = function(targetMobName)
                 local character = LocalPlayer.Character
-                character = character and character:FindFirstChild("HumanoidRootPart")
-                local n8 = CombatController.GRAB_DISTANCE + 25
+                local playerRoot = character and character:FindFirstChild("HumanoidRootPart")
+                local maxDistance = CombatController.GRAB_DISTANCE + 25
 
-                for _, v17 in Services.Workspace.Enemies:GetChildren() do
-                  if arg and (v17.Name ~= arg) then
-                    if v17:GetAttribute("IsGrabbed") then
-                      CombatController.ReleaseGrab(v17)
+                for _, mob in Services.Workspace.Enemies:GetChildren() do
+                  if targetMobName and (mob.Name ~= targetMobName) then
+                    if mob:GetAttribute("IsGrabbed") then
+                      CombatController.ReleaseGrab(mob)
                     end
-                  elseif v17:GetAttribute("IsGrabbed") then
-                    local humanoid = v17:FindFirstChild("Humanoid")
-                    local humanoidRootPart = v17:FindFirstChild("HumanoidRootPart") or v17.PrimaryPart
-                    local attribute = v17:GetAttribute("FailureCount")
+                  elseif mob:GetAttribute("IsGrabbed") then
+                    local humanoid = mob:FindFirstChild("Humanoid")
+                    local rootPart = mob:FindFirstChild("HumanoidRootPart") or mob.PrimaryPart
+                    local failureCount = mob:GetAttribute("FailureCount")
 
-                    if (humanoid and (humanoid.Health <= 0)) or v17:GetAttribute("IgnoreGrab") or (attribute and (attribute > 5)) or (character and humanoidRootPart and (n8 < (character.Position - humanoidRootPart.Position).Magnitude)) then
-                      CombatController.ReleaseGrab(v17)
+                    if (humanoid and (humanoid.Health <= 0)) or mob:GetAttribute("IgnoreGrab") or (failureCount and (failureCount > 5)) or (playerRoot and rootPart and (maxDistance < (playerRoot.Position - rootPart.Position).Magnitude)) then
+                      CombatController.ReleaseGrab(mob)
                     end
                   end
 
-                  if not v17:GetAttribute("IsGrabbed") then
-                    local humanoidRootPart2 = v17:FindFirstChild("HumanoidRootPart") or v17.PrimaryPart
-
-                    if humanoidRootPart2 then
-                      for k in pairs(tbl12) do
-                        local v18 = humanoidRootPart2:FindFirstChild(k)
-
-                        if v18 then
-                          v18:Destroy()
+                  if not mob:GetAttribute("IsGrabbed") then
+                    local rootPart2 = mob:FindFirstChild("HumanoidRootPart") or mob.PrimaryPart
+                    if rootPart2 then
+                      for moverName in pairs(GRAB_BODY_MOVERS) do
+                        local mover = rootPart2:FindFirstChild(moverName)
+                        if mover then
+                          mover:Destroy()
                         end
                       end
                     end
@@ -8683,60 +7353,29 @@ if true then
                 end
               end
 
-              local function fn37()
+              local function closeDialogueAndDogHouseUI()
                 if MeleeBuyBusy then
                   return
                 end
 
                 if LocalPlayer then
                   local playerGui = LocalPlayer:FindFirstChild("PlayerGui")
-
                   if playerGui then
                     pcall(function()
                       require(game.ReplicatedStorage.DialogueController).close()
                     end)
 
                     local dogHouse = playerGui:FindFirstChild("DogHouse")
-
                     if dogHouse then
-                      if not dogHouse.Enabled then
-                        if dogHouse:FindFirstChild("Frame") then
-                          if dogHouse.Frame.Visible then
-                            pcall(function()
-                              dogHouse.Enabled = false
-
-                              for _, descendant in ipairs(dogHouse:GetDescendants()) do
-                                if descendant:IsA("GuiObject") then
-                                  if descendant.Visible then
-                                    descendant.Visible = false
-                                  end
-                                end
-                              end
-                            end)
-
-                            return
-                          end
-                        end
-
-                        return
-                      end
-
                       pcall(function()
                         dogHouse.Enabled = false
-
                         for _, descendant in ipairs(dogHouse:GetDescendants()) do
-                          if descendant:IsA("GuiObject") then
-                            if descendant.Visible then
-                              descendant.Visible = false
-                            end
+                          if descendant:IsA("GuiObject") and descendant.Visible then
+                            descendant.Visible = false
                           end
                         end
                       end)
-
-                      return
                     end
-
-                    return
                   end
                 end
               end
@@ -8748,11 +7387,10 @@ if true then
                 while shared.BananaGrabCleanupVersion == bananaGrabCleanupVersion do
                   if not _G.Stop then
                     CombatController.CleanupGrabbed()
-                    fn37()
+                    closeDialogueAndDogHouseUI()
                     task.wait(1)
                     continue
                   end
-
                   break
                 end
               end)
@@ -8764,227 +7402,123 @@ if true then
                 end)
               end
 
-              CombatController.GetAliveMob = function(arg)
-                if arg then
-                  local humanoid = arg:FindFirstChild("Humanoid")
-                  local humanoidRootPart = arg:FindFirstChild("HumanoidRootPart")
-
-                  if humanoid then
-                    if humanoidRootPart then
-                      if humanoid.Health > 0 then
-                        return humanoid, humanoidRootPart
-                      end
-                    end
+              CombatController.GetAliveMob = function(mob)
+                if mob then
+                  local humanoid = mob:FindFirstChild("Humanoid")
+                  local humanoidRootPart = mob:FindFirstChild("HumanoidRootPart")
+                  if humanoid and humanoidRootPart and humanoid.Health > 0 then
+                    return humanoid, humanoidRootPart
                   end
-
-                  return
                 end
+                return nil
               end
 
-              CombatController.CanGrabRoot = function(arg)
-                return arg ~= nil and arg:IsA("BasePart")
+              CombatController.CanGrabRoot = function(part)
+                return part ~= nil and part:IsA("BasePart")
               end
 
-              CombatController.GetSpawnAnchor = function(arg)
-                local str4 = tostring(arg)
-                if CombatController.SpecialClusterMobs[str4] then
+              CombatController.GetSpawnAnchor = function(mobName)
+                local targetMobName = tostring(mobName)
+                if CombatController.SpecialClusterMobs[targetMobName] then
                   return nil
                 end
 
                 if CombatController.Special1 then
                   local special1 = CombatController.Special1
-
-                  if str4 then
-                    if special1[str4] then
+                  if targetMobName then
+                    if special1[targetMobName] then
                       return nil
                     end
-
-                    if CombatController.FixedAnchors[str4] then
-                      return CombatController.FixedAnchors[str4]
+                    if CombatController.FixedAnchors[targetMobName] then
+                      return CombatController.FixedAnchors[targetMobName]
                     end
                   end
-                elseif CombatController.FixedAnchors[str4] then
-                  return CombatController.FixedAnchors[str4]
+                elseif CombatController.FixedAnchors[targetMobName] then
+                  return CombatController.FixedAnchors[targetMobName]
                 end
 
-                local mobRegions = ScriptStorage.MobRegions and ScriptStorage.MobRegions[str4]
+                local mobRegions = ScriptStorage.MobRegions and ScriptStorage.MobRegions[targetMobName]
                 local character = LocalPlayer.Character
-                character = character and character:FindFirstChild("HumanoidRootPart")
-                local v17 = nil
+                local playerRoot = character and character:FindFirstChild("HumanoidRootPart")
+                local bestAnchorCFrame = nil
 
                 if mobRegions then
-                  local tbl13 = {}
-
-                  for _, mobRegion in ipairs(mobRegions) do
-                    local n8 = #tbl13 + 1
-                    local cframe3
-
-                    if typeof(mobRegion) == "CFrame" then
-                      cframe3 = mobRegion or CFrame.new(mobRegion)
+                  local parsedSpawnPoints = {}
+                  for _, regionPoint in ipairs(mobRegions) do
+                    local spawnCFrame
+                    if typeof(regionPoint) == "CFrame" then
+                      spawnCFrame = regionPoint
                     else
-                      cframe3 = CFrame.new(mobRegion)
+                      spawnCFrame = CFrame.new(regionPoint)
                     end
-
-                    tbl13[n8] = cframe3
+                    parsedSpawnPoints[#parsedSpawnPoints + 1] = spawnCFrame
                   end
 
-                  local v18 = nil
-                  local v19 = nil
-                  v17 = nil
+                  local minClusterDispersion = nil
+                  local minDistToPlayer = nil
+                  bestAnchorCFrame = nil
 
-                  for _, v20 in ipairs(tbl13) do
-                    local v22, v23, v24 = ipairs(tbl13)
-                    local n8 = 0
-
-                    for _, v25 in ipairs(tbl13) do
-                      n8 += (v20.Position - v25.Position).Magnitude
+                  for _, candidatePoint in ipairs(parsedSpawnPoints) do
+                    local totalDispersion = 0
+                    for _, otherPoint in ipairs(parsedSpawnPoints) do
+                      totalDispersion += (candidatePoint.Position - otherPoint.Position).Magnitude
                     end
 
-                    local magnitude
+                    local playerDistance = (playerRoot and (candidatePoint.Position - playerRoot.Position).Magnitude) or 0
 
-                    if character then
-                      magnitude = (v20.Position - character.Position).Magnitude
-
-                      if not magnitude then
-                        magnitude = 0
-                      end
-                    else
-                      magnitude = 0
-                    end
-
-                    if v18 then
-                      if n8 < v18 then
-                        v18 = n8
-                        v19 = magnitude
-                        v17 = v20
-                      elseif math.abs(n8 - v18) < 0.001 then
-                        if v19 then
-                          if magnitude < v19 then
-                            v18 = n8
-                            v19 = magnitude
-                            v17 = v20
-                          end
-                        elseif magnitude < math.huge then
-                          v18 = n8
-                          v19 = magnitude
-                          v17 = v20
+                    if minClusterDispersion then
+                      if totalDispersion < minClusterDispersion then
+                        minClusterDispersion = totalDispersion
+                        minDistToPlayer = playerDistance
+                        bestAnchorCFrame = candidatePoint
+                      elseif math.abs(totalDispersion - minClusterDispersion) < 0.001 then
+                        if not minDistToPlayer or playerDistance < minDistToPlayer then
+                          minClusterDispersion = totalDispersion
+                          minDistToPlayer = playerDistance
+                          bestAnchorCFrame = candidatePoint
                         end
                       end
                     else
-                      v18 = n8
-                      v19 = magnitude
-                      v17 = v20
+                      minClusterDispersion = totalDispersion
+                      minDistToPlayer = playerDistance
+                      bestAnchorCFrame = candidatePoint
                     end
                   end
 
-                  if v17 then
-                    CombatController.FixedAnchors[str4] = v17
-                    return v17
+                  if bestAnchorCFrame then
+                    CombatController.FixedAnchors[targetMobName] = bestAnchorCFrame
+                    return bestAnchorCFrame
                   end
-                elseif v17 then
-                  CombatController.FixedAnchors[str4] = v17
-                  return v17
                 end
 
                 local enemies = Services.Workspace:FindFirstChild("Enemies")
-
                 if enemies then
                   for _, child in ipairs(enemies:GetChildren()) do
-                    if child.Name ~= str4 then
-                      continue
-                    end
-
-                    if child:GetAttribute("IgnoreGrab") then
-                      continue
-                    end
-                    local v18, v19 = CombatController.GetAliveMob(child)
-                    if v19 then
-                      CombatController.FixedAnchors[str4] = v19.CFrame
-                      return v19.CFrame
+                    if child.Name == targetMobName and not child:GetAttribute("IgnoreGrab") then
+                      local aliveHumanoid, aliveRoot = CombatController.GetAliveMob(child)
+                      if aliveRoot then
+                        CombatController.FixedAnchors[targetMobName] = aliveRoot.CFrame
+                        return aliveRoot.CFrame
+                      end
                     end
                   end
                 end
 
-                return CombatController.FixedAnchors[str4]
+                return CombatController.FixedAnchors[targetMobName]
               end
 
-              local function fn38()
-                if ScriptStorage then
-                  if ScriptStorage.PlayerData then
-                    local devilFruit = ScriptStorage.PlayerData.DevilFruit
-
-                    if devilFruit then
-                      if devilFruit ~= "" then
-                        if devilFruit ~= "None" then
-                          return true
-                        end
-                      end
-                    end
+              local function hasDevilFruit()
+                if ScriptStorage and ScriptStorage.PlayerData then
+                  local devilFruit = ScriptStorage.PlayerData.DevilFruit
+                  if devilFruit and devilFruit ~= "" and devilFruit ~= "None" then
+                    return true
                   end
                 end
 
                 local data = LocalPlayer:FindFirstChild("Data")
-
                 if data then
                   local devilFruit = data:FindFirstChild("DevilFruit")
-
-                  if devilFruit then
-                    if devilFruit.Value then
-                      if devilFruit.Value == "" then
-                        return false
-                      end
-
-                      if devilFruit.Value ~= "None" then
-                        return true
-                      end
-                    end
-                  end
-                end
-
-                return false
-              end
-
-              CombatController.GetAttackOffset = function(arg)
-                local height = _G.FarmHeight or 15
-                if CombatController.IsRaidActive() then
-                  return CFrame.new(0, math.max(height, 20), 0)
-                end
-                return CFrame.new(0, height, 0)
-              end
-            end
-
-            CombatController.GetStandbyFrame = function(arg, arg2)
-              local anchor
-
-              if arg2 then
-                anchor = arg2.Anchor
-
-                if not anchor then
-                  anchor = CombatController.GetSpawnAnchor(arg)
-                  if not anchor then
-                    return anchor
-                  end
-                end
-              else
-                anchor = CombatController.GetSpawnAnchor(arg)
-                if not anchor then
-                  return anchor
-                end
-              end
-
-              return anchor * CombatController.GetAttackOffset(anchor)
-            end
-
-            CombatController.HasAliveMob = function(arg)
-              local enemies = Services.Workspace:FindFirstChild("Enemies")
-
-              if enemies then
-                for _, child in ipairs(enemies:GetChildren()) do
-                  if child.Name ~= arg then
-                    continue
-                  end
-
-                  if CombatController.GetAliveMob(child) then
+                  if devilFruit and devilFruit.Value and devilFruit.Value ~= "" and devilFruit.Value ~= "None" then
                     return true
                   end
                 end
@@ -8992,1452 +7526,1045 @@ if true then
                 return false
               end
 
-              return false
-            end
+              CombatController.GetAttackOffset = function(anchorCFrame)
+                local height = _G.FarmHeight or 15
+                if CombatController.IsRaidActive() then
+                  return CFrame.new(0, math.max(height, 20), 0)
+                end
+                return CFrame.new(0, height, 0)
+              end
 
-            local function shouldKeepBringMob(arg, arg2)
-              local v17, v18 = CombatController.GetAliveMob(arg)
-
-              if v18 then
-                if arg2 then
-                  if arg2.Anchor then
-                    local magnitude = (v18.Position - arg2.Anchor.Position).Magnitude
-                    if CombatController.GRAB_DISTANCE < magnitude then
-                      return false
-                    end
-                    local flag6 = magnitude <= CombatController.BRING_FOLLOW_DISTANCE
-                    if flag6 then
-                      return flag6
-                    end
-                    return (CombatController.CanGrabRoot(v18))
-                  end
-
-                  return false
+              CombatController.GetStandbyFrame = function(mobName, bringSession)
+                local anchor = nil
+                if bringSession and bringSession.Anchor then
+                  anchor = bringSession.Anchor
+                else
+                  anchor = CombatController.GetSpawnAnchor(mobName)
                 end
 
+                if not anchor then
+                  return nil
+                end
+                return anchor * CombatController.GetAttackOffset(anchor)
+              end
+
+              CombatController.HasAliveMob = function(mobName)
+                local enemies = Services.Workspace:FindFirstChild("Enemies")
+                if enemies then
+                  for _, child in ipairs(enemies:GetChildren()) do
+                    if child.Name == mobName and CombatController.GetAliveMob(child) then
+                      return true
+                    end
+                  end
+                end
                 return false
               end
 
-              return false
-            end
-
-            CombatController.ShouldKeepBringMob = shouldKeepBringMob
-
-            CombatController.GetBringSession = function(arg)
-              local str4 = tostring(arg)
-              local v17 = CombatController.BringSessions[str4]
-              local flag6 = false
-
-              if v17 then
-                local n8 = #v17.Mobs
-                local n9 = 1
-                local v18
-
-                for i = n8, n9, -1 do
-                  if CombatController.ShouldKeepBringMob(v17.Mobs[i], v17) then
-                    flag6 = true
-                  else
-                    table.remove(v17.Mobs, i)
+              local function shouldKeepBringMob(mob, bringSession)
+                local mobHumanoid, mobRoot = CombatController.GetAliveMob(mob)
+                if mobRoot and bringSession and bringSession.Anchor then
+                  local distance = (mobRoot.Position - bringSession.Anchor.Position).Magnitude
+                  if distance > CombatController.GRAB_DISTANCE then
+                    return false
                   end
+                  if distance <= CombatController.BRING_FOLLOW_DISTANCE then
+                    return true
+                  end
+                  return CombatController.CanGrabRoot(mobRoot)
                 end
+                return false
               end
 
-              local v18 = CombatController.SpecialClusterMobs[str4]
-              local tbl10
+              CombatController.ShouldKeepBringMob = shouldKeepBringMob
 
-              if v17 then
-                if not flag6 then
-                  if #v17.Mobs == 0 then
-                    tbl10 = {Anchor = CombatController.GetSpawnAnchor(str4), Mobs = {}}
-                    CombatController.BringSessions[str4] = tbl10
-                    return tbl10
-                  end
-                end
+              CombatController.GetBringSession = function(mobName)
+                local sessionKey = tostring(mobName)
+                local session = CombatController.BringSessions[sessionKey]
+                local hasValidMob = false
 
-                if v17.Anchor then
-                  if v18 then
-                    if not CombatController.HasAliveMobNearAnchor(str4, v17.Anchor) then
-                      v17.Anchor = CombatController.GetSpawnAnchor(str4)
-                      return v17
+                if session then
+                  for i = #session.Mobs, 1, -1 do
+                    if CombatController.ShouldKeepBringMob(session.Mobs[i], session) then
+                      hasValidMob = true
+                    else
+                      table.remove(session.Mobs, i)
                     end
                   end
-
-                  return v17
                 end
 
-                v17.Anchor = CombatController.GetSpawnAnchor(str4)
-                return v17
+                local isSpecialCluster = CombatController.SpecialClusterMobs[sessionKey]
+                if session then
+                  if not hasValidMob and #session.Mobs == 0 then
+                    local newSession = {Anchor = CombatController.GetSpawnAnchor(sessionKey), Mobs = {}}
+                    CombatController.BringSessions[sessionKey] = newSession
+                    return newSession
+                  end
+
+                  if session.Anchor then
+                    if isSpecialCluster and not CombatController.HasAliveMobNearAnchor(sessionKey, session.Anchor) then
+                      session.Anchor = CombatController.GetSpawnAnchor(sessionKey)
+                    end
+                    return session
+                  end
+
+                  session.Anchor = CombatController.GetSpawnAnchor(sessionKey)
+                  return session
+                end
+
+                local newSession = {Anchor = CombatController.GetSpawnAnchor(sessionKey), Mobs = {}}
+                CombatController.BringSessions[sessionKey] = newSession
+                return newSession
               end
 
-              tbl10 = {Anchor = CombatController.GetSpawnAnchor(str4), Mobs = {}}
-              CombatController.BringSessions[str4] = tbl10
-              return tbl10
-            end
+              CombatController.RefreshBringTargets = function(targetMobName, bringSession)
+                if not bringSession then
+                  return
+                end
 
-            CombatController.RefreshBringTargets = function(arg, arg2)
-              if arg2 then
-                arg2.Mobs = arg2.Mobs or {}
-
-                for i = #arg2.Mobs, 1, -1 do
-                  if not CombatController.ShouldKeepBringMob(arg2.Mobs[i], arg2) then
-                    table.remove(arg2.Mobs, i)
+                bringSession.Mobs = bringSession.Mobs or {}
+                for i = #bringSession.Mobs, 1, -1 do
+                  if not CombatController.ShouldKeepBringMob(bringSession.Mobs[i], bringSession) then
+                    table.remove(bringSession.Mobs, i)
                   end
                 end
 
-                local tbl10 = {}
+                local candidateMobs = {}
+                local enemies = Services.Workspace:FindFirstChild("Enemies")
+                if not enemies then
+                  return
+                end
+
+                local isSpecialCluster = CombatController.SpecialClusterMobs[targetMobName]
+                if bringSession.Anchor then
+                  if isSpecialCluster and not CombatController.HasAliveMobNearAnchor(targetMobName, bringSession.Anchor) then
+                    bringSession.Anchor = CombatController.GetSpawnAnchor(targetMobName)
+                  end
+                else
+                  bringSession.Anchor = CombatController.GetSpawnAnchor(targetMobName)
+                end
+
+                if not bringSession.Anchor or #bringSession.Mobs >= CombatController.BRING_LIMIT then
+                  return
+                end
+
+                for _, mob in ipairs(enemies:GetChildren()) do
+                  if mob.Name == targetMobName and not mob:GetAttribute("IgnoreGrab") then
+                    local failureCount = mob:GetAttribute("FailureCount") or 0
+                    if failureCount <= 7 and not table.find(bringSession.Mobs, mob) then
+                      local mobHumanoid, mobRootPart = CombatController.GetAliveMob(mob)
+                      if mobRootPart then
+                        local distanceToAnchor = (mobRootPart.Position - bringSession.Anchor.Position).Magnitude
+                        if distanceToAnchor <= CombatController.GRAB_DISTANCE then
+                          if distanceToAnchor <= CombatController.BRING_FOLLOW_DISTANCE or CombatController.CanGrabRoot(mobRootPart) then
+                            candidateMobs[#candidateMobs + 1] = {Mob = mob, Distance = distanceToAnchor}
+                          end
+                        end
+                      end
+                    end
+                  end
+                end
+
+                table.sort(candidateMobs, function(a, b)
+                  return a.Distance < b.Distance
+                end)
+
+                for _, candidate in ipairs(candidateMobs) do
+                  if #bringSession.Mobs >= CombatController.BRING_LIMIT then
+                    break
+                  end
+                  local aliveHumanoid, aliveRootPart = CombatController.GetAliveMob(candidate.Mob)
+                  if aliveRootPart then
+                    candidate.Mob:SetAttribute("OldPosition", candidate.Mob:GetAttribute("OldPosition") or aliveRootPart.Position)
+                    bringSession.Mobs[#bringSession.Mobs + 1] = candidate.Mob
+                  end
+                end
+              end
+
+              CombatController.GetCurrentBringTarget = function(mobName)
+                local session = CombatController.GetBringSession(mobName)
+                CombatController.RefreshBringTargets(mobName, session)
+
+                if session and session.Anchor then
+                  for _, mob in ipairs(session.Mobs) do
+                    if CombatController.GetAliveMob(mob) then
+                      return mob, session
+                    end
+                  end
+                end
+                return nil
+              end
+
+              CombatController.GetDistantBringMob = function(bringSession)
+                if bringSession and bringSession.Anchor then
+                  for _, mob in ipairs(bringSession.Mobs) do
+                    local mobHumanoid, mobRootPart = CombatController.GetAliveMob(mob)
+                    if mobRootPart then
+                      if CombatController.BRING_FOLLOW_DISTANCE < (mobRootPart.Position - bringSession.Anchor.Position).Magnitude then
+                        return mob, mobRootPart
+                      end
+                    end
+                  end
+                end
+                return nil
+              end
+
+              CombatController.Grab = function(mobName, bringSession)
+                if not CombatController.GRAB or not mobName then
+                  return
+                end
+
+                if GrabDebounce and (os.clock() - GrabDebounce) < 0.08 then
+                  return
+                end
+
+                GrabDebounce = os.clock()
+                CombatController.SetSimulationRadius()
+                CombatController.CleanupGrabbed(mobName)
+                bringSession = bringSession or CombatController.GetBringSession(mobName)
+                CombatController.RefreshBringTargets(mobName, bringSession)
+
+                if bringSession and bringSession.Anchor then
+                  local anchor = bringSession.Anchor
+                  local mobs = bringSession.Mobs or {}
+
+                  for _, mob in ipairs(mobs) do
+                    local mobHumanoid, mobRootPart = CombatController.GetAliveMob(mob)
+                    if mobRootPart and mobHumanoid and CombatController.CanGrabRoot(mobRootPart) then
+                      if (mobRootPart.Position - anchor.Position).Magnitude <= CombatController.GRAB_DISTANCE then
+                        CombatController.FreezeMob(mob, anchor)
+                        mob:SetAttribute("IsGrabbed", true)
+                        mob:SetAttribute("MidPoint", anchor)
+                      end
+                    end
+                  end
+                end
+              end
+
+              CombatController.GrabSpecial = function(mobName, targetCFrameOrPart)
+                pcall(function()
+                  setscriptable(game.Players.LocalPlayer, "SimulationRadius", true)
+                  sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
+                end)
+
+                if not CombatController.GRAB or not mobName or not targetCFrameOrPart then
+                  return
+                end
+
+                if GrabDebounce and (os.clock() - GrabDebounce) < 0.08 then
+                  return
+                end
+
+                GrabDebounce = os.clock()
+                CombatController.CleanupGrabbed(mobName)
+
+                local targetPosition = (typeof(targetCFrameOrPart) == "CFrame" and targetCFrameOrPart.Position) or (targetCFrameOrPart:IsA("BasePart") and targetCFrameOrPart.Position) or targetCFrameOrPart
+                local candidateMobs = {}
                 local enemies = Services.Workspace:FindFirstChild("Enemies")
 
                 if enemies then
-                  local v17 = CombatController.SpecialClusterMobs[arg]
+                  for _, child in ipairs(enemies:GetChildren()) do
+                    if child.Name == mobName then
+                      local humanoid = child:FindFirstChild("Humanoid")
+                      local humanoidRootPart = child:FindFirstChild("HumanoidRootPart")
 
-                  if arg2.Anchor then
-                    if v17 then
-                      if not CombatController.HasAliveMobNearAnchor(arg, arg2.Anchor) then
-                        arg2.Anchor = CombatController.GetSpawnAnchor(arg)
-                      end
-                    end
-                  else
-                    arg2.Anchor = CombatController.GetSpawnAnchor(arg)
-                  end
-
-                  if arg2.Anchor then
-                    if #arg2.Mobs >= CombatController.BRING_LIMIT then
-                      return
-                    end
-                    local v18, magnitude, flag6
-
-                    for _, child in ipairs(enemies:GetChildren()) do
-                      if child.Name == arg then
-                        local n8
-
-                        if not child:GetAttribute("IgnoreGrab") then
-                          local attribute = child:GetAttribute("FailureCount")
-                          local v19
-
-                          if attribute then
-                            if not ((attribute > 7) or table.find(arg2.Mobs, child)) then
-                              v19, v18 = CombatController.GetAliveMob(child)
-
-                              if v18 then
-                                magnitude = (v18.Position - arg2.Anchor.Position).Magnitude
-                                flag6 = magnitude <= CombatController.GRAB_DISTANCE
-
-                                if flag6 then
-                                  flag6 = magnitude <= CombatController.BRING_FOLLOW_DISTANCE
-
-                                  if flag6 then
-                                    if flag6 then
-                                      n8 = #tbl10 + 1
-                                      tbl10[n8] = {Mob = child, Distance = magnitude}
-                                    end
-                                  elseif CombatController.CanGrabRoot(v18) then
-                                    n8 = #tbl10 + 1
-                                    tbl10[n8] = {Mob = child, Distance = magnitude}
-                                  end
-                                elseif flag6 then
-                                  n8 = #tbl10 + 1
-                                  tbl10[n8] = {Mob = child, Distance = magnitude}
-                                end
-                              end
-                            end
-                          elseif not table.find(arg2.Mobs, child) then
-                            v19, v18 = CombatController.GetAliveMob(child)
-
-                            if v18 then
-                              magnitude = (v18.Position - arg2.Anchor.Position).Magnitude
-                              flag6 = magnitude <= CombatController.GRAB_DISTANCE
-
-                              if flag6 then
-                                flag6 = magnitude <= CombatController.BRING_FOLLOW_DISTANCE
-
-                                if flag6 then
-                                  if flag6 then
-                                    n8 = #tbl10 + 1
-                                    tbl10[n8] = {Mob = child, Distance = magnitude}
-                                  end
-                                elseif CombatController.CanGrabRoot(v18) then
-                                  n8 = #tbl10 + 1
-                                  tbl10[n8] = {Mob = child, Distance = magnitude}
-                                end
-                              elseif flag6 then
-                                n8 = #tbl10 + 1
-                                tbl10[n8] = {Mob = child, Distance = magnitude}
-                              end
-                            end
+                      if humanoid and humanoidRootPart and humanoid.Health > 0 and not child:GetAttribute("IgnoreGrab") then
+                        local failureCount = child:GetAttribute("FailureCount") or 0
+                        if failureCount <= 7 then
+                          local mobPos = humanoidRootPart.Position
+                          local dist = (mobPos - targetPosition).Magnitude
+                          if dist < CombatController.GRAB_DISTANCE then
+                            child:SetAttribute("OldPosition", child:GetAttribute("OldPosition") or mobPos)
+                            candidateMobs[#candidateMobs + 1] = {
+                              Mon = child,
+                              Root = humanoidRootPart,
+                              Humanoid = humanoid,
+                              Position = mobPos,
+                              Distance = dist
+                            }
                           end
                         end
                       end
                     end
-
-                    local function fn37(arg3, arg4)
-                      return arg3.Distance < arg4.Distance
-                    end
-
-                    table.sort(tbl10, fn37)
-
-                    for _, v19 in ipairs(tbl10) do
-                      if #arg2.Mobs >= CombatController.BRING_LIMIT then
-                        break
-                      else
-                        local v20, v22 = CombatController.GetAliveMob(v19.Mob)
-
-                        if v22 then
-                          v19.Mob:SetAttribute("OldPosition", v19.Mob:GetAttribute("OldPosition") or v22.Position)
-                          arg2.Mobs[#arg2.Mobs + 1] = v19.Mob
-                        end
-                      end
-                    end
-
-                    return
                   end
+                end
 
+                if #candidateMobs == 0 then
                   return
                 end
 
-                return
-              end
-            end
+                table.sort(candidateMobs, function(a, b)
+                  return a.Distance < b.Distance
+                end)
 
-            CombatController.GetCurrentBringTarget = function(arg)
-              local v17 = CombatController.GetBringSession(arg)
-              CombatController.RefreshBringTargets(arg, v17)
+                local clusterMobs = {}
+                local sumPosition = Vector3.new(0, 0, 0)
+                local maxCount = math.min(5, #candidateMobs)
 
-              if v17 then
-                if v17.Anchor then
-                  for _, mob in ipairs(v17.Mobs) do
-                    if CombatController.GetAliveMob(mob) then
-                      return mob, v17
-                    end
-                  end
-
-                  return
+                for i = 1, maxCount do
+                  local entry = candidateMobs[i]
+                  sumPosition += entry.Position
+                  clusterMobs[#clusterMobs + 1] = entry
                 end
 
-                return
-              end
-            end
+                local clusterCenterCFrame = CFrame.new(sumPosition / #clusterMobs)
 
-            CombatController.GetDistantBringMob = function(arg)
-              if arg then
-                if arg.Anchor then
-                  for _, mob in ipairs(arg.Mobs) do
-                    local v17, v18 = CombatController.GetAliveMob(mob)
+                for _, entry in ipairs(clusterMobs) do
+                  local mon = entry.Mon
+                  local root = entry.Root
+                  local humanoid = entry.Humanoid
 
-                    if v18 then
-                      if CombatController.BRING_FOLLOW_DISTANCE < (v18.Position - arg.Anchor.Position).Magnitude then
-                        return mob, v18
-                      end
-                    end
-                  end
-
-                  return
-                end
-
-                return
-              end
-            end
-
-            CombatController.Grab = function(arg, arg2)
-              if CombatController.GRAB then
-                if arg then
-                  if GrabDebounce then
-                    local v17 = GrabDebounce
-                    if (os.clock() - v17) < 0.08 then
-                      return
-                    end
-                  end
-
-                  GrabDebounce = os.clock()
-                  CombatController.SetSimulationRadius()
-                  CombatController.CleanupGrabbed(arg)
-                  arg2 = arg2 or CombatController.GetBringSession(arg)
-                  CombatController.RefreshBringTargets(arg, arg2)
-
-                  if arg2 then
-                    local anchor = arg2.Anchor
-
-                    if anchor then
-                      local mobs = arg2.Mobs
-                      mobs = mobs or {}
-
-                      for _, mob in ipairs(mobs) do
-                        local v17, v18 = CombatController.GetAliveMob(mob)
-
-                        if v18 then
-                          if v17 then
-                            if CombatController.CanGrabRoot(v18) then
-                              if (v18.Position - anchor.Position).Magnitude <= CombatController.GRAB_DISTANCE then
-                                CombatController.FreezeMob(mob, anchor)
-                                mob:SetAttribute("IsGrabbed", true)
-                                mob:SetAttribute("MidPoint", anchor)
-                              end
-                            end
-                          end
-                        end
-                      end
-
-                      return
-                    end
-                  end
-
-                  return
-                end
-
-                return
-              end
-            end
-
-            CombatController.GrabSpecial = function(arg, arg2)
-              pcall(function()
-                setscriptable(game.Players.LocalPlayer, "SimulationRadius", true)
-                sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
-              end)
-
-              if CombatController.GRAB then
-                if arg then
-                  if arg2 then
-                    if GrabDebounce then
-                      local v17 = GrabDebounce
-                      if (os.clock() - v17) < 0.08 then
-                        return
-                      end
+                  if mon and root and humanoid and humanoid.Health > 0 then
+                    if not mon:GetAttribute("DefaultMidPoint") then
+                      mon:SetAttribute("DefaultMidPoint", clusterCenterCFrame)
                     end
 
-                    GrabDebounce = os.clock()
-                    CombatController.CleanupGrabbed(arg)
-                    local position = arg2.Position
-                    local tbl10 = {}
-                    local enemies = Services.Workspace:FindFirstChild("Enemies")
-
-                    if enemies then
-                      for _, child in ipairs(enemies:GetChildren()) do
-                        if child.Name ~= arg then
-                          continue
-                        else
-                          local humanoid = child:FindFirstChild("Humanoid")
-                          local humanoidRootPart = child:FindFirstChild("HumanoidRootPart")
-
-                          if not humanoid or (not humanoidRootPart or ((humanoid.Health <= 0) or child:GetAttribute("IgnoreGrab"))) then
-                            continue
-                          else
-                            local attribute = child:GetAttribute("FailureCount")
-                            local position2, v17, flag6, v18, primaryPart, v19, setAttribute, attribute2, n8
-
-                            if not attribute or (attribute <= 7) then
-                              position2 = humanoidRootPart.Position
-
-                              if position2 then
-                                if (position2 - position).Magnitude < CombatController.GRAB_DISTANCE then
-                                  v19 = child
-                                  setAttribute = child.SetAttribute
-                                  attribute2 = child:GetAttribute("OldPosition") or position2
-                                  setAttribute(v19, "OldPosition", attribute2)
-                                  n8 = #tbl10 + 1
-                                  tbl10[n8] = {Mon = child, Root = humanoidRootPart, Humanoid = humanoid, Position = position2, Distance = (position2 - position).Magnitude}
-                                else
-                                  continue
-                                end
-                              else
-                                continue
-                              end
-                            else
-                              continue
-                            end
-                          end
-                        end
-                      end
-
-                      if #tbl10 <= 0 then
-                        return
-                      end
-
-                      local function fn37(arg3, arg4)
-                        return arg3.Distance < arg4.Distance
-                      end
-
-                      table.sort(tbl10, fn37)
-                      local tbl11 = {}
-                      local n8 = 0
-                      local n9 = math.min(5, #tbl10)
-                      local n10 = 1
-                      local vector = Vector3.new(0, 0, 0)
-                      local v17, v18, n11
-
-                      for i = n10, n9 do
-                        v18 = tbl10[i]
-                        vector += v18.Position
-                        n8 += 1
-                        n11 = #tbl11 + 1
-                        tbl11[n11] = v18
-                      end
-
-                      local cframe3 = CFrame.new(vector / n8)
-
-                      for i = 1, #tbl11 do
-                        local mon = tbl11[i].Mon
-                        local root = tbl11[i].Root
-                        local humanoid = tbl11[i].Humanoid
-
-                        if ((mon and root) and humanoid) and (humanoid.Health > 0) then
-                          if not mon:GetAttribute("DefaultMidPoint") then
-                            mon:SetAttribute("DefaultMidPoint", cframe3)
-                          end
-
-                          local attribute = mon:GetAttribute("OriginPosition")
-
-                          if not attribute then
-                            attribute = root.CFrame
-                            mon:SetAttribute("OriginPosition", attribute)
-                          end
-
-                          humanoid.WalkSpeed = 0
-                          humanoid.JumpPower = 0
-                          humanoid.AutoRotate = false
-                          root.CanCollide = false
-                          root.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
-                          root.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
-
-                          if (root.Position - cframe3.Position).Magnitude > 140 then
-                            cframe3 = attribute
-                            mon:SetAttribute("FailureCount", (mon:GetAttribute("FailureCount") or 0) + 1)
-                          end
-
-                          local farmingPosition = root:FindFirstChild("FarmingPosition")
-
-                          if not farmingPosition then
-                            farmingPosition = Instance.new("BodyPosition")
-                            farmingPosition.Name = "FarmingPosition"
-                            farmingPosition.Parent = root
-                          end
-
-                          farmingPosition.MaxForce = Vector3.new(100000, 100000, 100000)
-                          farmingPosition.P = 1250
-                          farmingPosition.D = 50
-                          farmingPosition.Position = cframe3.Position
-                          root.CFrame = cframe3
-                          mon:SetAttribute("IsGrabbed", true)
-                          mon:SetAttribute("MidPoint", cframe3)
-                        end
-                      end
-
-                      return
+                    local originPos = mon:GetAttribute("OriginPosition")
+                    if not originPos then
+                      originPos = root.CFrame
+                      mon:SetAttribute("OriginPosition", originPos)
                     end
 
-                    return
-                  end
+                    humanoid.WalkSpeed = 0
+                    humanoid.JumpPower = 0
+                    humanoid.AutoRotate = false
+                    root.CanCollide = false
+                    root.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+                    root.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
 
-                  return
-                end
-
-                return
-              end
-            end
-
-            Sort1 = function(arg)
-              if arg then
-                local humanoidRootPart = arg:FindFirstChild("HumanoidRootPart")
-                if humanoidRootPart then
-                  return (math.floor(CaculateDistance(arg.HumanoidRootPart.CFrame)))
-                end
-                return humanoidRootPart
-              end
-
-              return arg
-            end
-
-            CombatController.Search = function(arg)
-              local tbl10 = {}
-              local flag6 = false
-
-              for _, v17 in GetMonAsSortedRange() do
-                if table.find(arg, v17.Name) then
-                  if v17:FindFirstChild("Humanoid") then
-                    if v17.Humanoid.Health > 0 then
-                      local attribute = v17:GetAttribute("FailureCount")
-
-                      if attribute then
-                        if attribute < 3 then
-                          table.insert(tbl10, v17)
-                          flag6 = true
-                        end
-                      else
-                        table.insert(tbl10, v17)
-                        flag6 = true
-                      end
+                    if (root.Position - clusterCenterCFrame.Position).Magnitude > 140 then
+                      clusterCenterCFrame = originPos
+                      mon:SetAttribute("FailureCount", (mon:GetAttribute("FailureCount") or 0) + 1)
                     end
+
+                    local farmingPosition = root:FindFirstChild("FarmingPosition")
+                    if not farmingPosition then
+                      farmingPosition = Instance.new("BodyPosition")
+                      farmingPosition.Name = "FarmingPosition"
+                      farmingPosition.Parent = root
+                    end
+
+                    farmingPosition.MaxForce = Vector3.new(100000, 100000, 100000)
+                    farmingPosition.P = 1250
+                    farmingPosition.D = 50
+                    farmingPosition.Position = clusterCenterCFrame.Position
+                    root.CFrame = clusterCenterCFrame
+                    mon:SetAttribute("IsGrabbed", true)
+                    mon:SetAttribute("MidPoint", clusterCenterCFrame)
                   end
                 end
               end
 
-              table.sort(tbl10, function(arg2, arg3)
-                return Sort1(arg2) < Sort1(arg3)
-              end)
-
-              if flag6 then
-                return tbl10[1]
-              end
-
-              if CombatController.IsRaidActive() then
-                return
-              end
-
-              for _, v17 in ipairs(arg) do
-                local v18 = game.ReplicatedStorage:FindFirstChild(v17)
-                if CombatController.GetAliveMob(v18) then
-                  return v18
-                end
-              end
-            end
-
-            local tbl10 = {["Cake Prince"] = true, ["Dough King"] = true}
-
-            CombatController.IsCakeBossTarget = function(arg)
-              for _, v17 in ipairs(arg) do
-                if tbl10[tostring(v17)] then
-                  return true
-                end
-              end
-
-              return false
-            end
-
-            CombatController.IsBossTarget = function(arg)
-              local str4 = tostring(arg)
-              if BossesOrderLevel[str4] then
-                return true
-              end
-
-              if BossesOrderWL[str4] then
-                return true
-              end
-
-              if SpecialBossesOrder[str4] then
-                return true
-              end
-
-              for _, v17 in ipairs(BossesOrder) do
-                if v17 ~= str4 then
-                  continue
-                end
-                return true
-              end
-
-              return false
-            end
-
-            CombatController.IsRaidActive = function()
-              if SeaIndex ~= 1 then
-                local character = LocalPlayer.Character
-
-                if character then
-                  local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-
+              local function sortMobByDistance(mob)
+                if mob then
+                  local humanoidRootPart = mob:FindFirstChild("HumanoidRootPart")
                   if humanoidRootPart then
-                    local position = humanoidRootPart.Position
-                    if math.abs(position.X) > 40000 then
-                      return true
-                    end
+                    return math.floor(CaculateDistance(humanoidRootPart.CFrame))
+                  end
+                  return humanoidRootPart
+                end
+                return mob
+              end
 
-                    if math.abs(position.Z) > 40000 then
-                      return true
-                    end
+              CombatController.Search = function(mobNamesList)
+                local foundEnemies = {}
+                local hasFound = false
 
-                    if LocalPlayer:FindFirstChild("PlayerGui") then
-                      local main = LocalPlayer.PlayerGui:FindFirstChild("Main")
-
-                      if main then
-                        if main:FindFirstChild("Timer") then
-                          if main.Timer.Visible then
-                            if Services.Workspace:FindFirstChild("_WorldOrigin") then
-                              local locations = Services.Workspace._WorldOrigin:FindFirstChild("Locations")
-
-                              if locations then
-                                for _, child in ipairs(locations:GetChildren()) do
-                                  if string.find(child.Name, "Island ") then
-                                    if (child.Position - Vector3.new(0, 0, 0)).Magnitude > 7000 then
-                                      if (child.Position - humanoidRootPart.Position).Magnitude < 3000 then
-                                        return true
-                                      end
-                                    end
-                                  end
-                                end
-
-                                return false
-                              end
-                            end
-
-                            return false
-                          end
-
-                          return false
-                        end
-
-                        return false
+                for _, mob in GetMonAsSortedRange() do
+                  if table.find(mobNamesList, mob.Name) then
+                    local humanoid = mob:FindFirstChild("Humanoid")
+                    if humanoid and humanoid.Health > 0 then
+                      local failureCount = mob:GetAttribute("FailureCount")
+                      if not failureCount or failureCount < 3 then
+                        table.insert(foundEnemies, mob)
+                        hasFound = true
                       end
                     end
-
-                    return false
                   end
                 end
 
+                table.sort(foundEnemies, function(a, b)
+                  return sortMobByDistance(a) < sortMobByDistance(b)
+                end)
+
+                if hasFound then
+                  return foundEnemies[1]
+                end
+
+                if CombatController.IsRaidActive() then
+                  return nil
+                end
+
+                for _, mobName in ipairs(mobNamesList) do
+                  local repMob = game.ReplicatedStorage:FindFirstChild(mobName)
+                  if CombatController.GetAliveMob(repMob) then
+                    return repMob
+                  end
+                end
+                return nil
+              end
+
+              local CAKE_BOSSES = {["Cake Prince"] = true, ["Dough King"] = true}
+
+              CombatController.IsCakeBossTarget = function(targetList)
+                for _, name in ipairs(targetList) do
+                  if CAKE_BOSSES[tostring(name)] then
+                    return true
+                  end
+                end
                 return false
               end
 
-              return false
-            end
+              CombatController.IsBossTarget = function(targetName)
+                local strName = tostring(targetName)
+                if BossesOrderLevel[strName] or BossesOrderWL[strName] or SpecialBossesOrder[strName] then
+                  return true
+                end
 
-            CombatController.FindCakeBigMirror = function()
-              local v17 = nil
-              local tbl11 = nil
+                for _, boss in ipairs(BossesOrder) do
+                  if boss == strName then
+                    return true
+                  end
+                end
+                return false
+              end
 
-              for _, v18 in ipairs({Services.Workspace:FindFirstChild("Map"), Services.Workspace}) do
-                if v18 then
-                  for _, descendant in ipairs(v18:GetDescendants()) do
-                    local v19 = string.lower(tostring(descendant.Name))
-                    local v20 = string.gsub(v19, "%W", "")
-
-                    if v20 == "bigmirror" then
-                      local tbl12 = {}
-                      local n8 = 0
-
-                      if descendant:IsA("BasePart") then
-                        table.insert(tbl12, descendant)
-                        n8 = (descendant:FindFirstChildWhichIsA("TouchTransmitter") and 20) or 5
-                      elseif descendant:IsA("Model") then
-                        for _, descendant2 in ipairs(descendant:GetDescendants()) do
-                          if descendant2:IsA("BasePart") then
-                            table.insert(tbl12, descendant2)
-                            n8 += ((descendant2:FindFirstChildWhichIsA("TouchTransmitter") and 20) or 1)
-                          end
-                        end
+              CombatController.IsRaidActive = function()
+                if SeaIndex ~= 1 then
+                  local character = LocalPlayer.Character
+                  if character then
+                    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+                    if humanoidRootPart then
+                      local pos = humanoidRootPart.Position
+                      if math.abs(pos.X) > 40000 or math.abs(pos.Z) > 40000 then
+                        return true
                       end
 
-                      if #tbl12 > 0 then
-                        local n9 = n8 + (((v19 == "bigmirror") and 50) or 10)
-
-                        if not v17 or (n9 > v17) then
-                          tbl11 = {Instance = descendant, TouchParts = tbl12, CFrame = (descendant:IsA("Model") and descendant:GetModelCFrame()) or descendant.CFrame}
-                          v17 = n9
+                      if LocalPlayer:FindFirstChild("PlayerGui") then
+                        local mainGui = LocalPlayer.PlayerGui:FindFirstChild("Main")
+                        if mainGui and mainGui:FindFirstChild("Timer") and mainGui.Timer.Visible then
+                          local worldOrigin = Services.Workspace:FindFirstChild("_WorldOrigin")
+                          local locations = worldOrigin and worldOrigin:FindFirstChild("Locations")
+                          if locations then
+                            for _, child in ipairs(locations:GetChildren()) do
+                              if string.find(child.Name, "Island ") then
+                                if (child.Position - Vector3.new(0, 0, 0)).Magnitude > 7000 then
+                                  if (child.Position - humanoidRootPart.Position).Magnitude < 3000 then
+                                    return true
+                                  end
+                                end
+                              end
+                            end
+                          end
                         end
                       end
                     end
                   end
                 end
+                return false
               end
 
-              return tbl11
-            end
+              CombatController.FindCakeBigMirror = function()
+                local bestScore = nil
+                local bestMirror = nil
 
-            CombatController.GetCakeBigMirrorFallbackCFrame = function()
-              if ScriptStorage.NPCs then
-                local cakeScientist = ScriptStorage.NPCs["Cake Scientist"]
+                for _, container in ipairs({Services.Workspace:FindFirstChild("Map"), Services.Workspace}) do
+                  if container then
+                    for _, descendant in ipairs(container:GetDescendants()) do
+                      local lowerName = string.lower(tostring(descendant.Name))
+                      local cleanName = string.gsub(lowerName, "%W", "")
 
-                if cakeScientist then
-                  local ok, result = pcall(function()
-                    return cakeScientist:GetModelCFrame()
-                  end)
+                      if cleanName == "bigmirror" then
+                        local touchParts = {}
+                        local score = 0
 
-                  if ok then
-                    if result then
+                        if descendant:IsA("BasePart") then
+                          table.insert(touchParts, descendant)
+                          score = (descendant:FindFirstChildWhichIsA("TouchTransmitter") and 20) or 5
+                        elseif descendant:IsA("Model") then
+                          for _, subDescendant in ipairs(descendant:GetDescendants()) do
+                            if subDescendant:IsA("BasePart") then
+                              table.insert(touchParts, subDescendant)
+                              score += ((subDescendant:FindFirstChildWhichIsA("TouchTransmitter") and 20) or 1)
+                            end
+                          end
+                        end
+
+                        if #touchParts > 0 then
+                          local totalScore = score + (((lowerName == "bigmirror") and 50) or 10)
+                          if not bestScore or totalScore > bestScore then
+                            bestMirror = {
+                              Instance = descendant,
+                              TouchParts = touchParts,
+                              CFrame = (descendant:IsA("Model") and descendant:GetModelCFrame()) or descendant.CFrame
+                            }
+                            bestScore = totalScore
+                          end
+                        end
+                      end
+                    end
+                  end
+                end
+
+                return bestMirror
+              end
+
+              CombatController.GetCakeBigMirrorFallbackCFrame = function()
+                if ScriptStorage.NPCs then
+                  local cakeScientist = ScriptStorage.NPCs["Cake Scientist"]
+                  if cakeScientist then
+                    local ok, result = pcall(function()
+                      return cakeScientist:GetModelCFrame()
+                    end)
+                    if ok and result then
                       return result
                     end
                   end
                 end
-              end
 
-              local worldOrigin = Services.Workspace:FindFirstChild("_WorldOrigin")
-
-              if worldOrigin then
-                worldOrigin = Services.Workspace._WorldOrigin:FindFirstChild("PlayerSpawns")
-
+                local worldOrigin = Services.Workspace:FindFirstChild("_WorldOrigin")
                 if worldOrigin then
-                  local v17 = worldOrigin
-                  local findFirstChild = worldOrigin.FindFirstChild
-                  local str4 = ((Config.Team ~= "Marines") and "Pirates") or "Marines"
-                  worldOrigin = findFirstChild(v17, tostring(str4))
-
-                  if worldOrigin then
-                    local loaf = worldOrigin:FindFirstChild("Loaf")
-
-                    if loaf then
-                      local ok, result = pcall(function()
-                        if loaf:IsA("Model") then
-                          local modelCFrame = loaf:GetModelCFrame()
-                          if modelCFrame then
-                            return modelCFrame
+                  local playerSpawns = worldOrigin:FindFirstChild("PlayerSpawns")
+                  if playerSpawns then
+                    local teamName = ((Config.Team ~= "Marines") and "Pirates") or "Marines"
+                    local teamSpawns = playerSpawns:FindFirstChild(tostring(teamName))
+                    if teamSpawns then
+                      local loaf = teamSpawns:FindFirstChild("Loaf")
+                      if loaf then
+                        local ok, result = pcall(function()
+                          if loaf:IsA("Model") then
+                            return loaf:GetModelCFrame()
                           end
-                        end
-
-                        return loaf.CFrame
-                      end)
-
-                      if ok then
-                        if result then
+                          return loaf.CFrame
+                        end)
+                        if ok and result then
                           return result
                         end
                       end
                     end
+                    return CFrame.new(-2711, 63, -12896)
                   end
-
-                  return CFrame.new(-2711, 63, -12896)
                 end
+
+                return CFrame.new(-2711, 63, -12896)
               end
 
-              return CFrame.new(-2711, 63, -12896)
-            end
-
-            CombatController.GetCakeMirrorDimensionCFrame = function()
-              local map = Services.Workspace:FindFirstChild("Map")
-
-              if map then
-                local mirrorDimension = map:FindFirstChild("MirrorDimension")
-
-                if mirrorDimension then
-                  local main = mirrorDimension:FindFirstChild("MAIN", true)
-
-                  if main then
-                    if main:IsA("BasePart") then
-                      return main.CFrame, main:GetFullName()
+              CombatController.GetCakeMirrorDimensionCFrame = function()
+                local map = Services.Workspace:FindFirstChild("Map")
+                if map then
+                  local mirrorDimension = map:FindFirstChild("MirrorDimension")
+                  if mirrorDimension then
+                    local mainPart = mirrorDimension:FindFirstChild("MAIN", true)
+                    if mainPart and mainPart:IsA("BasePart") then
+                      return mainPart.CFrame, mainPart:GetFullName()
                     end
                   end
                 end
-              end
 
-              if Services.Workspace:FindFirstChild("_WorldOrigin") then
-                local locations = Services.Workspace._WorldOrigin:FindFirstChild("Locations")
-
-                if locations then
-                  local dimensionalShift = locations:FindFirstChild("Dimensional Shift")
-
-                  if dimensionalShift then
-                    if dimensionalShift:IsA("BasePart") then
+                local worldOrigin = Services.Workspace:FindFirstChild("_WorldOrigin")
+                if worldOrigin then
+                  local locations = worldOrigin:FindFirstChild("Locations")
+                  if locations then
+                    local dimensionalShift = locations:FindFirstChild("Dimensional Shift")
+                    if dimensionalShift and dimensionalShift:IsA("BasePart") then
                       return dimensionalShift.CFrame, dimensionalShift:GetFullName()
                     end
                   end
                 end
+                return nil
               end
-            end
 
-            CombatController.UseCakeBigMirrorPortal = function(arg)
-              if SeaIndex ~= 3 then
-                return false, "wrong-sea"
-              end
-              local v17 = CombatController.FindCakeBigMirror()
-
-              if v17 then
-                if arg then
-                  local instance = v17.Instance
-                  local position = v17.CFrame.Position
-                  return true, instance:GetFullName(), position
+              CombatController.UseCakeBigMirrorPortal = function(checkOnly)
+                if SeaIndex ~= 3 then
+                  return false, "wrong-sea"
                 end
 
-                local character = LocalPlayer.Character
-                local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
-                if not humanoidRootPart then
-                  return false, "missing-root"
-                end
-                SetTask("MainTask", "Auto Farm Boss - Entering BigMirror")
-                TweenController.Create(v17.CFrame + Vector3.new(0, 4, 0))
-
-                if CaculateDistance(v17.CFrame) < 35 then
-                  for _, v18 in ipairs(v17 or {}) do
-                    pcall(function()
-                      firetouchinterest(humanoidRootPart, v18, 0)
-                      task.wait()
-                      firetouchinterest(humanoidRootPart, v18, 1)
-                    end)
+                local mirrorData = CombatController.FindCakeBigMirror()
+                if mirrorData then
+                  if checkOnly then
+                    return true, mirrorData.Instance:GetFullName(), mirrorData.CFrame.Position
                   end
-                end
 
-                local instance = v17.Instance
-                local position = v17.CFrame.Position
-                return true, instance:GetFullName(), position
-              end
-
-              if arg then
-                return true, "loading-bigmirror", CombatController.GetCakeBigMirrorFallbackCFrame().Position
-              end
-              local v18 = CombatController.GetCakeBigMirrorFallbackCFrame()
-              SetTask("MainTask", "Auto Farm Boss - Loading BigMirror")
-              TweenController.Create(v18 + Vector3.new(0, 5, 0))
-              return true, "loading-bigmirror", v18.Position
-            end
-
-            local function fn37(arg, arg2, arg3, arg4, arg5)
-              local tbl11, v17, v18, v19, kind, v20, v22, specialClusterMobs, v23, tbl12, flag6, v24, str4, v25, v26, flag7, num, now5, n8, v27, position, targetInstance, enemies, flag8, humanoidRootPart, flag9, now6, stopCondition, n9, n10, character, humanoid, humanoid2, humanoidRootPart2, flag10, flag11, specialClusterMobs2, n11, v28, v29, n12, now7, humanoid3, humanoidRootPart3, attribute, attribute2, v30, setAttribute, attribute3, v31, call, str5, flag12, v32, now8, v33, v34
-              tbl11 = arg
-              v17 = tonumber(arg3) or 500
-              v18 = arg4
-              v19 = arg5
-              kind = type(tbl11)
-
-              if kind == "string" then
-                tbl11 = {tbl11}
-              end
-
-              v20 = tbl11[1]
-
-              if v20 then
-                v22 = CombatController.IsBossTarget(tostring(v20))
-
-                if v22 then
-                  v20 = v22
-                else
-                  specialClusterMobs = CombatController.SpecialClusterMobs
-
-                  if specialClusterMobs then
-                    v20 = CombatController.SpecialClusterMobs[tostring(v20)]
-                  else
-                    v20 = specialClusterMobs
+                  local character = LocalPlayer.Character
+                  local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
+                  if not humanoidRootPart then
+                    return false, "missing-root"
                   end
+
+                  SetTask("MainTask", "Auto Farm Boss - Entering BigMirror")
+                  TweenController.Create(mirrorData.CFrame + Vector3.new(0, 4, 0))
+
+                  if CaculateDistance(mirrorData.CFrame) < 35 then
+                    for _, touchPart in ipairs(mirrorData.TouchParts or {}) do
+                      pcall(function()
+                        firetouchinterest(humanoidRootPart, touchPart, 0)
+                        task.wait()
+                        firetouchinterest(humanoidRootPart, touchPart, 1)
+                      end)
+                    end
+                  end
+
+                  return true, mirrorData.Instance:GetFullName(), mirrorData.CFrame.Position
                 end
+
+                if checkOnly then
+                  return true, "loading-bigmirror", CombatController.GetCakeBigMirrorFallbackCFrame().Position
+                end
+
+                local fallbackCFrame = CombatController.GetCakeBigMirrorFallbackCFrame()
+                SetTask("MainTask", "Auto Farm Boss - Loading BigMirror")
+                TweenController.Create(fallbackCFrame + Vector3.new(0, 5, 0))
+                return true, "loading-bigmirror", fallbackCFrame.Position
               end
 
-              if MeleeEquipBusyName then
-                SetTask("MainTask", "Melee | Loading " .. tostring(MeleeEquipBusyName))
-                return
-              end
+              local function executeCombatAttack(targetInput, attackDistanceLimit, maxSearchDistance, customStopCondition, combatOptions)
+                local mobList = (type(targetInput) == "string" and {targetInput}) or targetInput or {}
+                local maxDist = tonumber(maxSearchDistance) or 500
+                local options = combatOptions or {}
+                local allowBring = (options.AllowBring == true)
+                local isRaid = CombatController.IsRaidActive()
+                local firstMob = mobList[1]
+                local isBossTarget = firstMob and (CombatController.IsBossTarget(tostring(firstMob)) or (CombatController.SpecialClusterMobs and CombatController.SpecialClusterMobs[tostring(firstMob)]))
 
-              if not v20 then
-                if ShouldPreemptForMeleeBuy then
-                  if ShouldPreemptForMeleeBuy() then
+                if MeleeEquipBusyName then
+                  SetTask("MainTask", "Melee | Loading " .. tostring(MeleeEquipBusyName))
+                  return
+                end
+
+                if not isBossTarget then
+                  if ShouldPreemptForMeleeBuy and ShouldPreemptForMeleeBuy() then
                     SetTask("MainTask", "Auto Melee Buy | Pending " .. tostring(GetMeleeBuyPending()))
                     return
                   end
                 end
-              end
 
-              pcall(function()
-                setscriptable(game.Players.LocalPlayer, "SimulationRadius", true)
-                sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
-              end)
-              if not kind then
-                return
-              end
-              v23 = CombatController.IsRaidActive()
+                pcall(function()
+                  setscriptable(game.Players.LocalPlayer, "SimulationRadius", true)
+                  sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
+                end)
 
-              if v19 then
-                tbl12 = v19
-              else
-                tbl12 = {}
-              end
+                for _, mobEntry in ipairs(mobList) do
+                  local targetMobName = tostring(mobEntry)
+                  local currentEnemy = nil
+                  local bringSession = nil
 
-              flag6 = tbl12.AllowBring == true
+                  local disableBring = isRaid or (not allowBring) or CombatController.IsBossTarget(targetMobName) or (CombatController.SpecialClusterMobs and CombatController.SpecialClusterMobs[targetMobName])
 
-              for _, v35 in ipairs(tbl11) do
-                str4 = tostring(v35)
-                v25 = nil
-                v26 = nil
-
-                if v23 then
-                  flag7 = v23
-                else
-                  flag7 = not flag6
-
-                  if not flag7 then
-                    flag7 = CombatController.IsBossTarget(str4)
-
-                    if not flag7 then
-                      flag7 = CombatController.SpecialClusterMobs
-
-                      if flag7 then
-                        flag7 = CombatController.SpecialClusterMobs[str4]
+                  -- Elite hunter auto-accept
+                  if targetMobName == "Deandre" or targetMobName == "Urban" or targetMobName == "Diablo" then
+                    if not ScriptStorage.Backpack.Yama then
+                      local eliteCount = tonumber(FunctionsHandler.Yama:Get("EliteCount")) or 0
+                      if eliteCount < 30 then
+                        local lastEliteCheck = LastFire12 or 0
+                        if (os.time() - lastEliteCheck) > 180 then
+                          LastFire12 = os.time()
+                          Remotes.CommF_:InvokeServer("EliteHunter")
+                        end
                       end
                     end
                   end
-                end
 
-                if (str4 == "Deandre") or ((str4 == "Urban") or (str4 == "Diablo")) then
-                  if not ScriptStorage.Backpack.Yama then
-                    num = tonumber(FunctionsHandler.Yama:Get("EliteCount"))
-
-                    if not num or (num < 30) then
-                      now5 = os.time()
-                      n8 = LastFire12
-
-                      if not n8 then
-                        n8 = 0
-                      end
-
-                      if (now5 - n8) > 180 then
-                        LastFire12 = os.time()
-                        Remotes.CommF_:InvokeServer("EliteHunter")
+                  if options.TargetInstance then
+                    local targetInstance = options.TargetInstance
+                    local enemiesFolder = workspace:FindFirstChild("Enemies")
+                    if typeof(targetInstance) == "Instance" and enemiesFolder and targetInstance.Name == targetMobName and targetInstance:IsDescendantOf(enemiesFolder) then
+                      local humanoid = targetInstance:FindFirstChildOfClass("Humanoid")
+                      if humanoid and humanoid.Health > 0 then
+                        currentEnemy = targetInstance
                       end
                     end
-                  end
-                end
-
-                if tbl12.TargetInstance then
-                  targetInstance = tbl12.TargetInstance
-                  enemies = workspace:FindFirstChild("Enemies")
-                  flag8 = typeof(targetInstance) == "Instance"
-
-                  if flag8 then
-                    flag8 = targetInstance:FindFirstChildOfClass("Humanoid")
-                  end
-
-                  if not enemies then
-                    return
-                  end
-
-                  if typeof(targetInstance) ~= "Instance" then
-                    return
-                  end
-
-                  if targetInstance.Name ~= str4 then
-                    return
-                  end
-
-                  if not targetInstance:IsDescendantOf(enemies) then
-                    return
-                  end
-
-                  if not flag8 then
-                    return
-                  end
-
-                  if flag8.Health <= 0 then
-                    return
-                  end
-                  v25 = targetInstance
-                  if not v25 then
-                    continue
-                  end
-                else
-                  v25 = CombatController.Search({str4})
-                  if not v25 then
-                    v27 = GetMonAsSortedRange()[1]
-                    if v27 and v27:FindFirstChild("HumanoidRootPart") then
-                      position = v27.HumanoidRootPart.Position
-                      local maxDist = tonumber(v17) or 500
-                      if position and CaculateDistance(position) < maxDist then
-                        v25 = v27
+                    if not currentEnemy then
+                      continue
+                    end
+                  else
+                    currentEnemy = CombatController.Search({targetMobName})
+                    if not currentEnemy then
+                      local firstNearby = GetMonAsSortedRange()[1]
+                      if firstNearby and firstNearby:FindFirstChild("HumanoidRootPart") then
+                        local pos = firstNearby.HumanoidRootPart.Position
+                        if pos and CaculateDistance(pos) < maxDist then
+                          currentEnemy = firstNearby
+                        end
                       end
                     end
-                  end
-                  if not v25 then
-                    local standby = CombatController.GetStandbyFrame(str4)
-                    if not standby and ScriptStorage.MobRegions and ScriptStorage.MobRegions[str4] then
-                      standby = ScriptStorage.MobRegions[str4][1]
+                    if not currentEnemy then
+                      local standby = CombatController.GetStandbyFrame(targetMobName)
+                      if not standby and ScriptStorage.MobRegions and ScriptStorage.MobRegions[targetMobName] then
+                        standby = ScriptStorage.MobRegions[targetMobName][1]
+                      end
+                      if standby then
+                        TweenController.Create(standby * CFrame.new(0, 25, 0), false, isRaid)
+                      end
+                      task.wait(0.2)
+                      continue
                     end
-                    if standby then
-                      TweenController.Create(standby * CFrame.new(0, 25, 0), false, v23)
-                    end
-                    task.wait(0.2)
-                    continue
                   end
-                end
 
-                humanoidRootPart = v25:FindFirstChild("HumanoidRootPart")
-                flag9 = CombatController.IsCakeBossTarget(tbl11)
-
-                if flag9 then
-                  flag9 = not humanoidRootPart
-
-                  if humanoidRootPart then
-                    if CaculateDistance(humanoidRootPart.CFrame) > 400 then
+                  local enemyRoot = currentEnemy:FindFirstChild("HumanoidRootPart")
+                  if CombatController.IsCakeBossTarget(mobList) then
+                    if not enemyRoot or CaculateDistance(enemyRoot.CFrame) > 400 then
                       if CombatController.UseCakeBigMirrorPortal() then
                         return
                       end
                     end
-                  elseif flag9 then
-                    if CombatController.UseCakeBigMirrorPortal() then
-                      return
-                    end
-                  end
-                elseif flag9 then
-                  if CombatController.UseCakeBigMirrorPortal() then
-                    return
-                  end
-                end
-
-                LastFound = os.time()
-                os.time()
-                now6 = os.time()
-
-                if flag7 then
-                  v26 = nil
-                else
-                  if not v26 then
-                    v26 = CombatController.GetBringSession(str4)
                   end
 
-                  CombatController.RefreshBringTargets(str4, v26)
-                end
+                  LastFound = os.time()
+                  local lastAttackTick = os.time()
 
-                stopCondition = tbl12.StopCondition
-
-                if stopCondition then
-                  stopCondition = function()
-                    if tbl12.StopCondition() then
-                      CombatController.ReleaseGrab(v25)
-
-                      if v26 then
-                        if v26.Mobs then
-                          for _, mob in ipairs(v26.Mobs) do
-                            CombatController.ReleaseGrab(mob)
-                          end
-
-                          return true
-                        end
-                      end
-
-                      return true
-                    end
-
-                    return false
-                  end
-                end
-
-                n9 = 0
-                n10 = 0
-
-                while true do
-                  if _G.Stop then
-                    return
+                  if not disableBring then
+                    bringSession = CombatController.GetBringSession(targetMobName)
+                    CombatController.RefreshBringTargets(targetMobName, bringSession)
                   end
 
-                  if stopCondition then
-                    if stopCondition() then
-                      return
-                    end
-                  end
-
-                  if MeleeEquipBusyName then
-                    TweenController.ClearGhost()
-                    SetTask("MainTask", "Melee | Loading " .. tostring(MeleeEquipBusyName))
-                    return
-                  end
-
-                  if not flag7 then
-                    if ShouldPreemptForMeleeBuy then
-                      if ShouldPreemptForMeleeBuy() then
-                        SetTask("MainTask", "Auto Melee Buy | Pending " .. tostring(GetMeleeBuyPending()))
-                        return
-                      end
-                    end
-                  end
-
-                  character = LocalPlayer.Character
-                  if not character then
-                    TweenController.ClearGhost()
-                    return
-                  end
-                  humanoid = character:FindFirstChildOfClass("Humanoid")
-                  if not humanoid or (humanoid.Health <= 0) then
-                    TweenController.ClearGhost()
-                    return
-                  end
-
-                  if tbl12.CheckQuest then
-                    if not GetCurrentClaimQuest() then
-                      CombatController.ReleaseGrab(v25)
-
-                      if v26 then
-                        if v26.Mobs then
-                          for _, mob in ipairs(v26.Mobs) do
+                  local stopCondition = nil
+                  if options.StopCondition then
+                    stopCondition = function()
+                      if options.StopCondition() then
+                        CombatController.ReleaseGrab(currentEnemy)
+                        if bringSession and bringSession.Mobs then
+                          for _, mob in ipairs(bringSession.Mobs) do
                             CombatController.ReleaseGrab(mob)
                           end
                         end
+                        return true
                       end
+                      return false
+                    end
+                  end
 
+                  local mobAttackDuration = 0
+                  local mobStuckCounter = 0
+
+                  while true do
+                    if _G.Stop then
+                      return
+                    end
+
+                    if stopCondition and stopCondition() then
+                      return
+                    end
+
+                    if MeleeEquipBusyName then
+                      TweenController.ClearGhost()
+                      SetTask("MainTask", "Melee | Loading " .. tostring(MeleeEquipBusyName))
+                      return
+                    end
+
+                    if not disableBring and ShouldPreemptForMeleeBuy and ShouldPreemptForMeleeBuy() then
+                      SetTask("MainTask", "Auto Melee Buy | Pending " .. tostring(GetMeleeBuyPending()))
+                      return
+                    end
+
+                    local character = LocalPlayer.Character
+                    if not character then
+                      TweenController.ClearGhost()
+                      return
+                    end
+
+                    local playerHumanoid = character:FindFirstChildOfClass("Humanoid")
+                    if not playerHumanoid or playerHumanoid.Health <= 0 then
+                      TweenController.ClearGhost()
+                      return
+                    end
+
+                    if options.CheckQuest and not GetCurrentClaimQuest() then
+                      CombatController.ReleaseGrab(currentEnemy)
+                      if bringSession and bringSession.Mobs then
+                        for _, mob in ipairs(bringSession.Mobs) do
+                          CombatController.ReleaseGrab(mob)
+                        end
+                      end
                       TweenController.Hovering = false
                       TweenController.HoverCFrame = nil
                       break
                     end
-                  end
 
-                  humanoid2 = v25:FindFirstChild("Humanoid")
-                  humanoidRootPart2 = v25:FindFirstChild("HumanoidRootPart")
-                  flag10 = not humanoid2
+                    local enemyHumanoid = currentEnemy:FindFirstChild("Humanoid")
+                    local enemyRootPart = currentEnemy:FindFirstChild("HumanoidRootPart")
 
-                  if (humanoid2 and (humanoid2.Health <= 0)) or (not humanoid2 and flag10) then
-                    CombatController.ReleaseGrab(v25)
+                    if not enemyHumanoid or enemyHumanoid.Health <= 0 then
+                      CombatController.ReleaseGrab(currentEnemy)
 
-                    if tbl12.CheckQuest then
-                      if not GetCurrentClaimQuest() then
-                        if v26 then
-                          if v26.Mobs then
-                            for _, mob in ipairs(v26.Mobs) do
-                              CombatController.ReleaseGrab(mob)
-                            end
+                      if options.CheckQuest and not GetCurrentClaimQuest() then
+                        if bringSession and bringSession.Mobs then
+                          for _, mob in ipairs(bringSession.Mobs) do
+                            CombatController.ReleaseGrab(mob)
                           end
                         end
-
                         TweenController.Hovering = false
                         TweenController.HoverCFrame = nil
                         break
                       end
-                    end
 
-                    flag11 = not flag7
-
-                    if not flag7 then
-                      flag11 = CombatController.GetCurrentBringTarget(str4)
-                    end
-
-                    if not flag11 then
-                      if v25.Name ~= "Don Swan" then
-                        TweenController.Hovering = false
-                        TweenController.HoverCFrame = nil
-                      else
-                        Storage:Set("SwanDefeated", true)
-                        TweenController.Hovering = false
-                        TweenController.HoverCFrame = nil
-                        Hop()
+                      local nextTarget = nil
+                      if not disableBring then
+                        nextTarget = CombatController.GetCurrentBringTarget(targetMobName)
                       end
 
-                      break
+                      if not nextTarget then
+                        if currentEnemy.Name ~= "Don Swan" then
+                          TweenController.Hovering = false
+                          TweenController.HoverCFrame = nil
+                        else
+                          Storage:Set("SwanDefeated", true)
+                          TweenController.Hovering = false
+                          TweenController.HoverCFrame = nil
+                          Hop()
+                        end
+                        break
+                      end
+
+                      currentEnemy = nextTarget
+                      enemyHumanoid = currentEnemy:FindFirstChild("Humanoid")
+                      enemyRootPart = currentEnemy:FindFirstChild("HumanoidRootPart")
                     end
 
-                    v25 = flag11
-                    humanoid2 = v25:FindFirstChild("Humanoid")
-                    humanoidRootPart2 = v25:FindFirstChild("HumanoidRootPart")
-                  end
-
-                  if flag7 or not v26 then
-                    if not flag7 then
-                      local v36, v37 = CombatController.GetDistantBringMob(v26)
-
-                      if v37 then
-                        CombatController.Grab(str4, v26)
+                    if disableBring or not bringSession then
+                      if not disableBring then
+                        local distantMob, distantMobRoot = CombatController.GetDistantBringMob(bringSession)
+                        if distantMobRoot then
+                          CombatController.Grab(targetMobName, bringSession)
+                        end
+                      end
+                    else
+                      CombatController.RefreshBringTargets(targetMobName, bringSession)
+                      CombatController.Grab(targetMobName, bringSession)
+                      local distantMob, distantMobRoot = CombatController.GetDistantBringMob(bringSession)
+                      if distantMobRoot then
+                        CombatController.Grab(targetMobName, bringSession)
                       end
                     end
-                  else
-                    CombatController.RefreshBringTargets(str4, v26)
-                    CombatController.Grab(str4, v26)
-                    local v36, v37 = CombatController.GetDistantBringMob(v26)
 
-                    if v37 then
-                      CombatController.Grab(str4, v26)
+                    local isSpecialCluster = CombatController.SpecialClusterMobs and CombatController.SpecialClusterMobs[targetMobName]
+                    local attackOffset = enemyRootPart.CFrame * CombatController.GetAttackOffset(enemyRootPart.CFrame)
+
+                    local hoverTargetCFrame
+                    if disableBring or isSpecialCluster then
+                      hoverTargetCFrame = attackOffset or CombatController.GetStandbyFrame(targetMobName, bringSession) or attackOffset
+                    else
+                      hoverTargetCFrame = CombatController.GetStandbyFrame(targetMobName, bringSession) or attackOffset
                     end
-                  end
 
-                  specialClusterMobs2 = CombatController.SpecialClusterMobs
-
-                  if specialClusterMobs2 then
-                    specialClusterMobs2 = CombatController.SpecialClusterMobs[str4]
-                  end
-
-                  n11 = humanoidRootPart2.CFrame * CombatController.GetAttackOffset(humanoidRootPart2.CFrame)
-
-                  if flag7 or specialClusterMobs2 then
-                    v28 = n11
-
-                    if not v28 then
-                      v28 = CombatController.GetStandbyFrame(str4, v26)
-
-                      if not v28 then
-                        v28 = n11
-                      end
-                    end
-                  else
-                    v28 = CombatController.GetStandbyFrame(str4, v26)
-
-                    if not v28 then
-                      v28 = n11
-                    end
-                  end
-
-                  if v23 then
-                    if CaculateDistance(v28) > 1000 then
+                    if isRaid and CaculateDistance(hoverTargetCFrame) > 1000 then
                       return
                     end
-                  end
 
-                  v29 = CaculateDistance(v28)
+                    local distToFarmPos = CaculateDistance(hoverTargetCFrame)
 
-                  if v23 and (v29 <= 150) then
-                    humanoidRootPart3 = character:FindFirstChild("HumanoidRootPart")
+                    if isRaid and distToFarmPos <= 150 then
+                      local playerHRP = character:FindFirstChild("HumanoidRootPart")
+                      if playerHRP then
+                        stopTween(false)
+                        playerHRP.CFrame = hoverTargetCFrame
+                      else
+                        TweenController.CreateDirect(hoverTargetCFrame, false, true)
+                      end
+                    elseif distToFarmPos > 150 then
+                      TweenController.Create(hoverTargetCFrame, false, isRaid)
+                      local tweenTimeout = math.min(12, math.max(3, CaculateDistance(hoverTargetCFrame) / 200))
+                      local tweenStartTime = os.clock()
 
-                    if humanoidRootPart3 then
-                      stopTween(false)
-                      humanoidRootPart3.CFrame = v28
-                    else
-                      TweenController.CreateDirect(v28, false, true)
-                    end
-                  elseif v29 > 150 then
-                    TweenController.Create(v28, false, v23)
-                    n12 = math.min(12, math.max(3, CaculateDistance(v28) / 200))
-                    now7 = os.clock()
-
-                    while (CaculateDistance(v28) > 150) and ((os.clock() - now7) < n12) do
-                      if stopCondition then
-                        if stopCondition() then
+                      while CaculateDistance(hoverTargetCFrame) > 150 and (os.clock() - tweenStartTime) < tweenTimeout do
+                        if stopCondition and stopCondition() then
                           return
                         end
-                      end
 
-                      if not LocalPlayer.Character then
-                        TweenController.ClearGhost()
-                        return
-                      end
-                      humanoid3 = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-                      if not humanoid3 then
-                        TweenController.ClearGhost()
-                        return
-                      end
-
-                      if humanoid3.Health <= 0 then
-                        TweenController.ClearGhost()
-                        return
-                      end
-
-                      if not TweenController.Playing then
-                        if CaculateDistance(v28) > 150 then
-                          TweenController.Create(v28, false, v23)
+                        if not LocalPlayer.Character then
+                          TweenController.ClearGhost()
+                          return
                         end
+
+                        local curHum = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+                        if not curHum or curHum.Health <= 0 then
+                          TweenController.ClearGhost()
+                          return
+                        end
+
+                        if not TweenController.Playing and CaculateDistance(hoverTargetCFrame) > 150 then
+                          TweenController.Create(hoverTargetCFrame, false, isRaid)
+                        end
+
+                        task.wait(0.1)
+                      end
+                    elseif disableBring or isSpecialCluster then
+                      TweenController.CreateDirect(hoverTargetCFrame, false, isRaid)
+                    elseif CombatController.BRING_FOLLOW_DISTANCE < CaculateDistance(hoverTargetCFrame) then
+                      TweenController.Create(hoverTargetCFrame, false, isRaid)
+                    else
+                      TweenController.Hovering = true
+                      TweenController.HoverCFrame = hoverTargetCFrame
+                      prepareNoclip()
+                    end
+
+                    if CaculateDistance(hoverTargetCFrame) < 150 then
+                      if customStopCondition then
+                        customStopCondition()
                       end
 
-                      task.wait(0.1)
-                    end
-                  elseif flag7 or specialClusterMobs2 then
-                    TweenController.CreateDirect(v28, false, v23)
-                  elseif CombatController.BRING_FOLLOW_DISTANCE < CaculateDistance(v28) then
-                    TweenController.Create(v28, false, v23)
-                  else
-                    TweenController.Hovering = true
-                    TweenController.HoverCFrame = v28
-                    fn30()
-                  end
-
-                  if CaculateDistance(v28) < 150 then
-                    if v18 then
-                      v18()
-                    end
-
-                    if CombatController.SpecialClusterMobs then
-                      if CombatController.SpecialClusterMobs[str4] then
-                        CombatController.GrabSpecial(str4, humanoidRootPart2)
+                      if CombatController.SpecialClusterMobs and CombatController.SpecialClusterMobs[targetMobName] then
+                        CombatController.GrabSpecial(targetMobName, enemyRootPart)
                       end
-                    end
 
-                    if v25.Name ~= "Core" then
-                      if ScriptStorage.PlayerData.Level > 100 then
-                        if CombatController.MAX_ATTACK_DURATION_2 <= n9 then
-                          if (humanoid2.Health - humanoid2.MaxHealth) == 0 then
-                            pcall(function() v25:Destroy() end)
+                      if currentEnemy.Name ~= "Core" then
+                        if ScriptStorage.PlayerData.Level > 100 and CombatController.MAX_ATTACK_DURATION_2 <= mobAttackDuration then
+                          if (enemyHumanoid.Health - enemyHumanoid.MaxHealth) == 0 then
+                            pcall(function() currentEnemy:Destroy() end)
                             continue
                           end
                         end
-                      end
 
-                      attribute = v25:GetAttribute("FailureCount")
-
-                      if attribute then
-                        if attribute > 5 then
-                          pcall(function() v25:Destroy() end)
+                        local failCount = currentEnemy:GetAttribute("FailureCount")
+                        if failCount and failCount > 5 then
+                          pcall(function() currentEnemy:Destroy() end)
                           continue
                         end
-                      end
 
-                      if (CombatController.MAX_ATTACK_DURATION > n10) or ((humanoid2.Health - humanoid2.MaxHealth) ~= 0) then
-                        local equipTool = FunctionsHandler.LocalPlayerController.Methods.EquipTool
-                        v31 = equipTool
-                        call = equipTool.Call
+                        if CombatController.MAX_ATTACK_DURATION > mobStuckCounter or (enemyHumanoid.Health - enemyHumanoid.MaxHealth) ~= 0 then
+                          local weaponType = (ScriptStorage.ForceToUseSword and "Sword") or "Melee"
+                          FunctionsHandler.LocalPlayerController.Methods.EquipTool:Call(weaponType)
 
-                        if ScriptStorage.ForceToUseSword then
-                          str5 = "Sword"
-                        else
-                          str5 = "Melee"
-                        end
-
-                        call(v31, str5)
-
-                        if not v23 then
-                          CombatController.FreezeMob(v25)
-                        end
-
-                        flag12 = not flag7
-
-                        if ((flag7 and flag12) or (not flag7 and v26)) and v26.Mobs then
-                          for _, mob in ipairs(v26.Mobs) do
-                            CombatController.FreezeMob(mob, v26.Anchor)
+                          if not isRaid then
+                            CombatController.FreezeMob(currentEnemy)
                           end
-                        end
 
-                        if v23 then
-                          if humanoid.Health > 0 then
-                            if humanoid.Health < (humanoid.MaxHealth * 0.45) then
-                              now8 = os.clock()
-
-                              while (humanoid.Health > 0) and ((humanoid.Health < (humanoid.MaxHealth * 0.85)) and ((os.clock() - now8) < 8)) do
-                                TweenController.CreateDirect(humanoidRootPart2.CFrame * CFrame.new(0, 100, 0), false, v23)
-                                task.wait(0.2)
-                              end
+                          if (not disableBring and bringSession) and bringSession.Mobs then
+                            for _, mob in ipairs(bringSession.Mobs) do
+                              CombatController.FreezeMob(mob, bringSession.Anchor)
                             end
                           end
-                        end
 
-                        FastAttack:Attack(v25)
+                          -- Low HP safety retreat in Raid
+                          if isRaid and playerHumanoid.Health > 0 and playerHumanoid.Health < (playerHumanoid.MaxHealth * 0.45) then
+                            local healStartTime = os.clock()
+                            while playerHumanoid.Health > 0 and playerHumanoid.Health < (playerHumanoid.MaxHealth * 0.85) and (os.clock() - healStartTime) < 8 do
+                              TweenController.CreateDirect(enemyRootPart.CFrame * CFrame.new(0, 100, 0), false, isRaid)
+                              task.wait(0.2)
+                            end
+                          end
 
-                        if os.time() ~= now6 then
-                          now6 = os.time()
-                          n10 += 1
-                          n9 += 1
-                        end
+                          FastAttack:Attack(currentEnemy)
 
-                        if n10 > 30 then
-                          if v25.Name ~= "Core" then
+                          if os.time() ~= lastAttackTick then
+                            lastAttackTick = os.time()
+                            mobStuckCounter += 1
+                            mobAttackDuration += 1
+                          end
+
+                          if mobStuckCounter > 30 and currentEnemy.Name ~= "Core" then
                             break
-                          end
-                        end
-
-                        task.wait(0.03)
-                        continue
-                      else
-                        attribute2 = v25:GetAttribute("OldPosition")
-                        n10 = 0
-
-                        if attribute2 then
-                          CombatController.ReleaseGrab(v25)
-                          v25:SetPrimaryPartCFrame(CFrame.new(attribute2))
-                          v25:SetAttribute("IgnoreGrab", true)
-                          v30 = v25
-                          setAttribute = v25.SetAttribute
-                          attribute3 = v25:GetAttribute("FailureCount")
-
-                          if not attribute3 then
-                            attribute3 = 0
-                          end
-
-                          setAttribute(v30, "FailureCount", attribute3 + 1)
-
-                          while true do
-                            if CaculateDistance(v25.HumanoidRootPart.CFrame, attribute2) <= 6 then
-                              task.wait()
-                              return
-                            end
-
-                            if not task.wait() then
-                              task.wait()
-                              return
-                            end
-                            v25.HumanoidRootPart.CFrame = CFrame.new(attribute2)
-                          end
-                        else
-                          local equipTool = FunctionsHandler.LocalPlayerController.Methods.EquipTool
-                          v31 = equipTool
-                          call = equipTool.Call
-
-                          if ScriptStorage.ForceToUseSword then
-                            str5 = "Sword"
-                          else
-                            str5 = "Melee"
-                          end
-
-                          call(v31, str5)
-
-                          if not v23 then
-                            CombatController.FreezeMob(v25)
-                          end
-
-                          flag12 = not flag7
-
-                          if ((flag7 and flag12) or (not flag7 and v26)) and v26.Mobs then
-                            for _, mob in ipairs(v26.Mobs) do
-                              CombatController.FreezeMob(mob, v26.Anchor)
-                            end
-                          end
-
-                          if v23 then
-                            if humanoid.Health > 0 then
-                              if humanoid.Health < (humanoid.MaxHealth * 0.45) then
-                                now8 = os.clock()
-
-                                while (humanoid.Health > 0) and ((humanoid.Health < (humanoid.MaxHealth * 0.85)) and ((os.clock() - now8) < 8)) do
-                                  TweenController.CreateDirect(humanoidRootPart2.CFrame * CFrame.new(0, 100, 0), false, v23)
-                                  task.wait(0.2)
-                                end
-                              end
-                            end
-                          end
-
-                          FastAttack:Attack(v25)
-
-                          if os.time() ~= now6 then
-                            now6 = os.time()
-                            n10 += 1
-                            n9 += 1
-                          end
-
-                          if n10 > 30 then
-                            if v25.Name ~= "Core" then
-                              break
-                            end
                           end
 
                           task.wait(0.03)
                           continue
-                        end
-                      end
-                    else
-                      local equipTool = FunctionsHandler.LocalPlayerController.Methods.EquipTool
-                      v31 = equipTool
-                      call = equipTool.Call
+                        else
+                          local oldPosition = currentEnemy:GetAttribute("OldPosition")
+                          mobStuckCounter = 0
 
-                      if ScriptStorage.ForceToUseSword then
-                        str5 = "Sword"
-                      else
-                        str5 = "Melee"
-                      end
+                          if oldPosition then
+                            CombatController.ReleaseGrab(currentEnemy)
+                            currentEnemy:SetPrimaryPartCFrame(CFrame.new(oldPosition))
+                            currentEnemy:SetAttribute("IgnoreGrab", true)
+                            currentEnemy:SetAttribute("FailureCount", (currentEnemy:GetAttribute("FailureCount") or 0) + 1)
 
-                      call(v31, str5)
-
-                      if not v23 then
-                        CombatController.FreezeMob(v25)
-                      end
-
-                      flag12 = not flag7
-
-                      if ((flag7 and flag12) or (not flag7 and v26)) and v26.Mobs then
-                        for _, mob in ipairs(v26.Mobs) do
-                          CombatController.FreezeMob(mob, v26.Anchor)
-                        end
-                      end
-
-                      if v23 then
-                        if humanoid.Health > 0 then
-                          if humanoid.Health < (humanoid.MaxHealth * 0.45) then
-                            now8 = os.clock()
-
-                            while (humanoid.Health > 0) and ((humanoid.Health < (humanoid.MaxHealth * 0.85)) and ((os.clock() - now8) < 8)) do
-                              TweenController.CreateDirect(humanoidRootPart2.CFrame * CFrame.new(0, 100, 0), false, v23)
-                              task.wait(0.2)
+                            while true do
+                              if CaculateDistance(currentEnemy.HumanoidRootPart.CFrame, oldPosition) <= 6 then
+                                task.wait()
+                                return
+                              end
+                              if not task.wait() then
+                                task.wait()
+                                return
+                              end
+                              currentEnemy.HumanoidRootPart.CFrame = CFrame.new(oldPosition)
                             end
+                          else
+                            local weaponType = (ScriptStorage.ForceToUseSword and "Sword") or "Melee"
+                            FunctionsHandler.LocalPlayerController.Methods.EquipTool:Call(weaponType)
+
+                            if not isRaid then
+                              CombatController.FreezeMob(currentEnemy)
+                            end
+
+                            if (not disableBring and bringSession) and bringSession.Mobs then
+                              for _, mob in ipairs(bringSession.Mobs) do
+                                CombatController.FreezeMob(mob, bringSession.Anchor)
+                              end
+                            end
+
+                            if isRaid and playerHumanoid.Health > 0 and playerHumanoid.Health < (playerHumanoid.MaxHealth * 0.45) then
+                              local healStartTime = os.clock()
+                              while playerHumanoid.Health > 0 and playerHumanoid.Health < (playerHumanoid.MaxHealth * 0.85) and (os.clock() - healStartTime) < 8 do
+                                TweenController.CreateDirect(enemyRootPart.CFrame * CFrame.new(0, 100, 0), false, isRaid)
+                                task.wait(0.2)
+                              end
+                            end
+
+                            FastAttack:Attack(currentEnemy)
+
+                            if os.time() ~= lastAttackTick then
+                              lastAttackTick = os.time()
+                              mobStuckCounter += 1
+                              mobAttackDuration += 1
+                            end
+
+                            if mobStuckCounter > 30 and currentEnemy.Name ~= "Core" then
+                              break
+                            end
+
+                            task.wait(0.03)
+                            continue
                           end
                         end
-                      end
+                      else
+                        local weaponType = (ScriptStorage.ForceToUseSword and "Sword") or "Melee"
+                        FunctionsHandler.LocalPlayerController.Methods.EquipTool:Call(weaponType)
 
-                      FastAttack:Attack(v25)
+                        if not isRaid then
+                          CombatController.FreezeMob(currentEnemy)
+                        end
 
-                      if os.time() ~= now6 then
-                        now6 = os.time()
-                        n10 += 1
-                        n9 += 1
-                      end
+                        if (not disableBring and bringSession) and bringSession.Mobs then
+                          for _, mob in ipairs(bringSession.Mobs) do
+                            CombatController.FreezeMob(mob, bringSession.Anchor)
+                          end
+                        end
 
-                      if n10 > 30 then
-                        if v25.Name ~= "Core" then
+                        if isRaid and playerHumanoid.Health > 0 and playerHumanoid.Health < (playerHumanoid.MaxHealth * 0.45) then
+                          local healStartTime = os.clock()
+                          while playerHumanoid.Health > 0 and playerHumanoid.Health < (playerHumanoid.MaxHealth * 0.85) and (os.clock() - healStartTime) < 8 do
+                            TweenController.CreateDirect(enemyRootPart.CFrame * CFrame.new(0, 100, 0), false, isRaid)
+                            task.wait(0.2)
+                          end
+                        end
+
+                        FastAttack:Attack(currentEnemy)
+
+                        if os.time() ~= lastAttackTick then
+                          lastAttackTick = os.time()
+                          mobStuckCounter += 1
+                          mobAttackDuration += 1
+                        end
+
+                        if mobStuckCounter > 30 and currentEnemy.Name ~= "Core" then
                           break
                         end
-                      end
 
-                      task.wait(0.03)
-                      continue
+                        task.wait(0.03)
+                        continue
+                      end
+                    else
+                      return
                     end
-                  else
-                    return
                   end
                 end
+
+                TweenController.Hovering = false
+                TweenController.HoverCFrame = nil
+                return
               end
 
-              TweenController.Hovering = false
-              TweenController.HoverCFrame = nil
-              return
+              CombatController.Attack = executeCombatAttack
             end
-
-            CombatController.Attack = fn37
           LevelFarmTTL = 0
           LastTravel = os.time()
           LastQuestRefreshLevel = 0
@@ -10505,11 +8632,11 @@ if true then
                     return true
                   end
 
-                  local function fn32()
+                  local function cannotChangeConstant()
                     assert(false, "cannot change constant value!")
                   end
 
-                  setmetatable(Result.Constants, {__newindex = fn32})
+                  setmetatable(Result.Constants, {__newindex = cannotChangeConstant})
 
                   Result.SaveConstant = function(arg4, arg5, arg6)
                     if arg4.Constants[arg5] then
@@ -10586,7 +8713,7 @@ if true then
             FunctionsHandler.CollectDrops:Register()
             FunctionsHandler.UtillyItemsActivitation:Register()
 
-            local function fn32()
+            local function calculateTweenSpeed()
               local n3 = 0
 
               pcall(function()
@@ -10614,7 +8741,7 @@ if true then
             end
 
             local function fn33()
-              if fn32() > 0 then
+              if calculateTweenSpeed() > 0 then
                 return
               end
               local tbl = {}
@@ -10835,7 +8962,7 @@ if true then
 
               for _, v15 in ipairs(tbl) do
                 if not _G.Stop then
-                  if fn32() > 0 then
+                  if calculateTweenSpeed() > 0 then
                     return
                   end
 
@@ -10849,7 +8976,7 @@ if true then
                     Storage:Save()
                     task.wait(1)
 
-                    if fn32() > 0 then
+                    if calculateTweenSpeed() > 0 then
                       pcall(function()
                         SetTask("SideTask", "2x EXP Active (" .. (v15 .. ")"))
                       end)
@@ -10876,7 +9003,7 @@ if true then
                 end
 
                 if level < MaxLevel then
-                  if fn32() == 0 then
+                  if calculateTweenSpeed() == 0 then
                     pcall(fn33)
                   end
                 end
@@ -11295,7 +9422,7 @@ if true then
                   end
                 end
 
-                if Config.FarmBoneForx2EXP and (level >= 2025) and ((fn32() == 0) or (level == MaxLevel)) then
+                if Config.FarmBoneForx2EXP and (level >= 2025) and ((calculateTweenSpeed() == 0) or (level == MaxLevel)) then
                   local bones = ScriptStorage.Backpack.Bones or {Count = 0}
 
                   if bones.Count < 500 then
@@ -14054,7 +12181,7 @@ if true then
           end)
 
           do
-            local function fn32(arg)
+            local function calculateTweenSpeed(arg)
               local map, flag5, num
 
               if arg ~= "Deandre" then
@@ -14372,7 +12499,7 @@ if true then
                     if v17:FindFirstChild("Humanoid") then
                       if v17.Humanoid.Health > 0 then
                         if fn33(v16) then
-                        elseif fn32(v16) then
+                        elseif calculateTweenSpeed(v16) then
                           v15 = v17
                         end
                       end
@@ -15597,7 +13724,7 @@ if true then
                         end
                       end
 
-                      fn32(name3)
+                      calculateTweenSpeed(name3)
 
                       if v20 then
                         local now5 = os.time()
@@ -15606,7 +13733,7 @@ if true then
                           if v20:IsDescendantOf(enemies) then
                             if (os.time() - now5) < 45 then
                               task.wait(0.05)
-                              fn32(name3)
+                              calculateTweenSpeed(name3)
                               local humanoid = v20:FindFirstChildOfClass("Humanoid")
                               local humanoidRootPart = v20:FindFirstChild("HumanoidRootPart")
 
@@ -19352,7 +17479,7 @@ if true then
           end
           end
 
-        mmb = fn21
+        mmb = startKaitunBot
         local ok, result = xpcall(mmb, debug.traceback)
 
         if not ok then
@@ -19372,12 +17499,12 @@ if true then
         return true
       end
 
-      tbl5.CursedDualKatana = false
-      tbl5.SoulGuitar = false
-      tbl5.FarmBoneForx2EXP = false
-      tbl5.WebhookEnabled = false
-      tbl5.WebhookUrl = ""
-      tbl5.WebhookIntervalMinutes = 5
+      configSettings.CursedDualKatana = false
+      configSettings.SoulGuitar = false
+      configSettings.FarmBoneForx2EXP = false
+      configSettings.WebhookEnabled = false
+      configSettings.WebhookUrl = ""
+      configSettings.WebhookIntervalMinutes = 5
     end
   end
 end
