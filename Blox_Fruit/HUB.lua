@@ -33,7 +33,7 @@ local vpX = camera and camera.ViewportSize.X or 800
 local vpY = camera and camera.ViewportSize.Y or 600
 local winWidth = isMobile and math.clamp(vpX - 40, 360, 480) or 540
 local winHeight = isMobile and math.clamp(vpY - 40, 260, 320) or 360
-
+--// :)))
 local Window = Fluent:CreateWindow({
     Title = "Banana Cat Hub",
     SubTitle = "Blox Fruits [ Premium ]",
@@ -72,7 +72,7 @@ local playerInfoCard = Tabs.Home:AddParagraph({
     Content = "Loading data..."
 })
 
-task.spawn(function()
+task.spawn(function() --// :)))
     while task.wait(3) do
         pcall(function()
             local lp = game:GetService("Players").LocalPlayer
@@ -118,6 +118,7 @@ local v236 = toggleTweenService
 local toggleBtnTween = toggleTweenService:Create(toggleGuiBtn, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
     ["Rotation"] = 0
 })
+--// :)))
 local isToggleBtnActive = true
 local function toggleMenu()
     toggleBtnParticles.Rate = 100
@@ -163,9 +164,10 @@ pcall(function()
         end)
     end)
 end)
-Sea1 = false
-Sea2 = false
-Sea3 = false
+Sea1 = true
+Sea2 = true
+Sea3 = true
+--// :)))
 local currentPlaceId = game.PlaceId
 if currentPlaceId == 2753915549 or tostring(currentPlaceId) == "2753915549" then
     Sea1 = true
