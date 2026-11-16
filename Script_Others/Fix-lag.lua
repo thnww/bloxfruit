@@ -121,23 +121,41 @@ local function handleSound(inst)
 end
 
 local function nukeTextures(inst)
+    local cfg = _G.Settings
+    if not cfg then return end
+
     pcall(function()
         if inst:IsA("MeshPart") then
-            inst.TextureID      = ""
-            inst.Reflectance    = 0
-            inst.RenderFidelity = Enum.RenderFidelity.Automatic
-            inst.CastShadow     = false
+            if cfg.MeshParts and cfg.MeshParts.NoTexture then
+                inst.TextureID = ""
+            end
+            if cfg.MeshParts and cfg.MeshParts.LowerQuality then
+                inst.Reflectance = 0
+                inst.RenderFidelity = Enum.RenderFidelity.Automatic
+                inst.CastShadow = false
+            end
         elseif inst:IsA("SpecialMesh") then
-            inst.TextureId = ""
-            inst.MeshId    = ""
+            if cfg.Meshes and cfg.Meshes.NoTexture then
+                inst.TextureId = ""
+            end
+            if cfg.Meshes and cfg.Meshes.NoMesh then
+                inst.MeshId = ""
+            end
         elseif inst:IsA("SurfaceAppearance") then
-            inst:Destroy()
+            if (cfg.MeshParts and cfg.MeshParts.NoTexture) or
+               (cfg.Other and cfg.Other.NoClothes) then
+                inst:Destroy()
+            end
         elseif inst:IsA("Decal") or inst:IsA("Texture") then
-            inst:Destroy()
-        elseif inst:IsA("BasePart") then
-            inst.Material    = Enum.Material.Plastic
+            if cfg.Images and cfg.Images.Destroy then
+                inst:Destroy()
+            elseif cfg.Images and cfg.Images.Invisible then
+                inst.Transparency = 1
+            end
+        elseif inst:IsA("BasePart") and cfg.Other and cfg.Other.LowQualityParts then
+            inst.Material = Enum.Material.Plastic
             inst.Reflectance = 0
-            inst.CastShadow  = false
+            inst.CastShadow = false
         end
     end)
 end
@@ -145,42 +163,73 @@ end
 local trackedEffects = setmetatable({}, { __mode = "k" })
 
 local function nukeVFX(inst)
+    local cfg = _G.Settings
+    if not cfg then return end
+
+    local noVFX = cfg.Other and cfg.Other.NoVFX
+    local noSoundEffects = cfg.Other and cfg.Other.NoLoopSounds
+
     pcall(function()
-        if table.find(VFX_DESTROY, inst.ClassName) then
+        if noVFX and table.find(VFX_DESTROY, inst.ClassName) then
             inst:Destroy()
             return
         end
-        if table.find(SOUND_EFFECTS, inst.ClassName) then
+
+        if noSoundEffects and table.find(SOUND_EFFECTS, inst.ClassName) then
             inst:Destroy()
             return
         end
-        if inst:IsA("PostEffect") or table.find(VFX_DISABLE, inst.ClassName) then
+
+        local isParticle = table.find(PARTICLE_TYPES, inst.ClassName) ~= nil
+        local shouldDisable = noVFX or
+            (isParticle and cfg.Particles and cfg.Particles.Invisible)
+
+        if shouldDisable and (inst:IsA("PostEffect") or
+            table.find(VFX_DISABLE, inst.ClassName) or isParticle) then
+
             if inst:IsA("ParticleEmitter") then
                 inst.Enabled = false
                 inst:Clear()
-            elseif inst:IsA("Trail") or inst:IsA("Beam") then
+            elseif inst:IsA("Trail") or inst:IsA("Beam") or
+                   inst:IsA("Smoke") or inst:IsA("Fire") or
+                   inst:IsA("Sparkles") then
                 inst.Enabled = false
-            elseif inst:IsA("Smoke") or inst:IsA("Fire") or inst:IsA("Sparkles") then
-                inst.Enabled = false
-            elseif inst:IsA("PointLight") or inst:IsA("SpotLight") or inst:IsA("SurfaceLight") or inst:IsA("PostEffect") then
+            elseif inst:IsA("PointLight") or inst:IsA("SpotLight") or
+                   inst:IsA("SurfaceLight") or inst:IsA("PostEffect") then
                 inst.Enabled = false
             end
+
             if not trackedEffects[inst] and inst.Parent then
                 trackedEffects[inst] = true
-                pcall(function()
-                    inst:GetPropertyChangedSignal("Enabled"):Connect(function()
-                        if inst.Parent and inst.Enabled then
-                            inst.Enabled = false
-                            if inst:IsA("ParticleEmitter") then inst:Clear() end
-                        end
-                    end)
-                end)
+
                 if inst:IsA("ParticleEmitter") then
                     pcall(function()
-                        inst:GetPropertyChangedSignal("Rate"):Connect(function()
-                            if inst.Parent and inst.Rate > 0 then inst.Rate = 0 end
+                        inst:GetPropertyChangedSignal("Enabled"):Connect(function()
+                            if inst.Parent and inst.Enabled then
+                                inst.Enabled = false
+                                inst:Clear()
+                            end
                         end)
+
+                        inst:GetPropertyChangedSignal("Rate"):Connect(function()
+                            if inst.Parent and inst.Rate > 0 then
+                                inst.Rate = 0
+                            end
+                        end)
+
                         inst.Rate = 0
+                    end)
+                elseif inst:IsA("Trail") or inst:IsA("Beam") or
+                       inst:IsA("Smoke") or inst:IsA("Fire") or
+                       inst:IsA("Sparkles") or inst:IsA("PointLight") or
+                       inst:IsA("SpotLight") or inst:IsA("SurfaceLight") or
+                       inst:IsA("PostEffect") then
+                    pcall(function()
+                        inst:GetPropertyChangedSignal("Enabled"):Connect(function()
+                            if inst.Parent and inst.Enabled then
+                                inst.Enabled = false
+                            end
+                        end)
                     end)
                 end
             end
@@ -344,20 +393,32 @@ local function stripNPC(model)
     end)
 end
 
+local trackedPostEffectContainers = setmetatable({}, { __mode = "k" })
+
 local function stripPostEffects(parent)
+    if not parent or trackedPostEffectContainers[parent] then return end
+    trackedPostEffectContainers[parent] = true
+
     for _, inst in ipairs(parent:GetDescendants()) do
-        if inst:IsA("PostEffect") then pcall(function() inst.Enabled = false end) end
+        if inst:IsA("PostEffect") then
+            pcall(function() inst.Enabled = false end)
+        end
     end
+
     parent.DescendantAdded:Connect(function(inst)
-        if inst:IsA("PostEffect") then pcall(function() inst.Enabled = false end) end
+        if inst:IsA("PostEffect") then
+            pcall(function() inst.Enabled = false end)
+        end
     end)
 end
 
-stripPostEffects(Lighting)
-stripPostEffects(workspace.CurrentCamera)
-workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
-    if workspace.CurrentCamera then stripPostEffects(workspace.CurrentCamera) end
-end)
+if _G.Settings.Other.NoCameraEffects then
+    stripPostEffects(Lighting)
+    stripPostEffects(workspace.CurrentCamera)
+    workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
+        stripPostEffects(workspace.CurrentCamera)
+    end)
+end
 
 if _G.Settings.Other.NoCameraShake then
     local shakeConn
@@ -470,7 +531,11 @@ task.spawn(pcall, function()
     if not _G.Settings.Other.FPSCap then return end
     if not setfpscap then return end
     local cap = _G.Settings.Other.FPSCap
-    if type(cap) == "number" then setfpscap(cap) else setfpscap(120) end
+    if type(cap) == "number" then
+        setfpscap(math.max(1, cap))
+    else
+        setfpscap(120)
+    end
 end)
 
 task.spawn(pcall, function()
@@ -479,8 +544,10 @@ task.spawn(pcall, function()
     for _, v in ipairs(getnilinstances()) do pcall(v.Destroy, v) end
 end)
 
-if LocalPlayer.Character then stripCharacter(LocalPlayer.Character) end
-LocalPlayer.CharacterAdded:Connect(stripCharacter)
+if not _G.Settings.Players.IgnoreMe then
+    if LocalPlayer.Character then stripCharacter(LocalPlayer.Character) end
+    LocalPlayer.CharacterAdded:Connect(stripCharacter)
+end
 
 local trackedNPCs = setmetatable({}, { __mode = "k" })
 
@@ -513,6 +580,14 @@ for i = 1, #initial do
     if i % 400 == 0 then task.wait() end
 end
 
+for _, root in ipairs({ Lighting, ReplicatedStorage }) do
+    local descendants = root:GetDescendants()
+    for i = 1, #descendants do
+        processInstance(descendants[i])
+        if i % 400 == 0 then task.wait() end
+    end
+end
+
 local pending = {}
 local queued = setmetatable({}, { __mode = "k" })
 local processing = false
@@ -540,7 +615,6 @@ local function queueProcess(inst)
         end
         table.clear(pending)
         processing = false
-        if #pending > 0 then queueProcess(pending[1]) end
     end)
 end
 
