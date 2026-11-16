@@ -604,5 +604,10 @@ local function queueProcess(inst)
 end
 
 workspace.DescendantAdded:Connect(queueProcess)
+
 Lighting.DescendantAdded:Connect(queueProcess)
+
 ReplicatedStorage.DescendantAdded:Connect(queueProcess)
+
+print'FIX LAG ON'
+
