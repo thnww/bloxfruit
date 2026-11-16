@@ -1,5 +1,5 @@
---[[
---// Setting fix lag 
+_G.Ignore        = _G.Ignore or {}
+_G.ConsoleLogs   = _G.ConsoleLogs or false
 
 _G.Settings = _G.Settings or {
     Players = {
@@ -50,65 +50,6 @@ _G.Settings = _G.Settings or {
         ResetMaterials      = true,
         LowQualityMeshParts = true,
         ClearNilInstances   = false,
-        NoVFX               = true,
-        NoLoopSounds        = true,
-    },
-}
-
-loadstring(game:HttpGet("https://raw.githubusercontent.com/thnww/bloxfruit/refs/heads/main/Script_Others/Fix-lag.lua"))()
-]]
-_G.Ignore        = _G.Ignore or {}
-_G.ConsoleLogs   = _G.ConsoleLogs or false
-
-_G.Settings = _G.Settings or {
-    Players = {
-        IgnoreMe     = false, -- có thể để true
-        IgnoreOthers = true,
-        IgnoreTools  = true,
-    },
-    Meshes = {
-        NoMesh    = false, -- có thể để true
-        NoTexture = true,
-        Destroy   = false, -- có thể để true
-    },
-    Images = {
-        Invisible = true,
-        Destroy   = false, -- có thể để true
-    },
-    Explosions = {
-        Smaller   = true,
-        Invisible = false, -- có thể để true
-        Destroy   = false, -- có thể để true
-    },
-    Particles = {
-        Invisible = true,
-        Destroy   = true,
-    },
-    TextLabels = {
-        LowerQuality = false, -- có thể để true
-        Invisible    = false, -- có thể để true
-        Destroy      = false, -- có thể để true
-    },
-    MeshParts = {
-        LowerQuality = true,
-        Invisible    = false, -- có thể để true
-        NoTexture    = true,
-        NoMesh       = false, -- có thể để true
-        Destroy      = false, -- có thể để true
-    },
-    Other = {
-        FPSCap              = true,
-        NoCameraEffects     = true,
-        NoCameraShake       = true,
-        NoClothes           = true,
-        LowWaterGraphics    = true,
-        NoShadows           = true,
-        LowRendering        = true,
-        LowQualityParts     = true,
-        LowQualityModels    = true,
-        ResetMaterials      = true,
-        LowQualityMeshParts = true,
-        ClearNilInstances   = false, -- có thể để true
         NoVFX               = true,
         NoLoopSounds        = true,
     },
@@ -604,10 +545,6 @@ local function queueProcess(inst)
 end
 
 workspace.DescendantAdded:Connect(queueProcess)
-
 Lighting.DescendantAdded:Connect(queueProcess)
-
 ReplicatedStorage.DescendantAdded:Connect(queueProcess)
-
-print'FIX LAG ON'
 
