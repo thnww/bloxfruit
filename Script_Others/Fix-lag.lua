@@ -1,4 +1,6 @@
 --[[
+--// Setting fix lag 
+
 _G.Settings = _G.Settings or {
     Players = {
         IgnoreMe     = false,
